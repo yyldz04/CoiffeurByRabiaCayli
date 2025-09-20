@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { SegmentPicker } from './SegmentPicker';
 import { ExpandableServiceSection } from './ExpandableServiceSection';
 import { BookingOverview } from './BookingOverview';
+import { CalendarWidget } from './CalendarWidget';
+import { TimeSlots } from './TimeSlots';
 import { serviceService, Service, ServiceGroup } from '../utils/supabase/client';
 
 export function AppointmentPage() {
@@ -15,6 +17,7 @@ export function AppointmentPage() {
     id: string;
     name: string;
     duration: string;
+    durationMinutes: number;
     price: string;
     category: string;
     genderRestriction: string;
@@ -42,7 +45,19 @@ export function AppointmentPage() {
   // Reset service selection when hair length changes
   useEffect(() => {
     setSelectedService('');
+    setFormData(prev => ({ ...prev, time: '' })); // Clear selected time
   }, [selectedHairLength]);
+
+  // Clear selected time when service changes
+  useEffect(() => {
+    setFormData(prev => ({ ...prev, time: '' }));
+  }, [selectedService]);
+
+  // Get selected service duration
+  const getSelectedServiceDuration = () => {
+    const service = allServices.find(s => s.id === selectedService);
+    return service?.durationMinutes || 60; // Default to 60 minutes
+  };
 
   const loadServicesFromSupabase = async () => {
     try {
@@ -56,6 +71,7 @@ export function AppointmentPage() {
         id: string;
         name: string;
         duration: string;
+        durationMinutes: number;
         price: string;
         category: string;
         genderRestriction: string;
@@ -69,6 +85,7 @@ export function AppointmentPage() {
               id: service.id, // Use the actual service UUID, not composite ID
               name: group.title,
               duration: `${service.duration_minutes} min`,
+              durationMinutes: service.duration_minutes,
               price: `${service.price_euros}€`,
               category: group.category?.name || 'UNKNOWN',
               genderRestriction: group.gender_restriction,
@@ -225,7 +242,7 @@ export function AppointmentPage() {
                 value={formData.phone}
                 onChange={(e) => handleInputChange('phone', e.target.value)}
                 className="w-full bg-transparent border border-white/20 px-4 py-3 focus:border-white focus:outline-none transition-colors"
-                placeholder="030 123-4567"
+                placeholder="Mit Vorwahl"
               />
             </div>
           </div>
@@ -261,7 +278,9 @@ export function AppointmentPage() {
                   >
                     <h4 className="tracking-[0.05em] mb-2 uppercase">{service.name}</h4>
                     <p className="text-sm opacity-70 uppercase">{service.duration}</p>
-                    <p className="tracking-[0.05em] uppercase">{service.price}</p>
+                    {service.price !== '0€' && service.price !== '0.00€' && (
+                      <p className="tracking-[0.05em] uppercase">{service.price}</p>
+                    )}
                   </div>
                 ))}
               </div>
@@ -282,49 +301,37 @@ export function AppointmentPage() {
             )}
           </div>
 
-          {/* Date and Time */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-              <label htmlFor="date" className="block tracking-[0.05em] mb-2 uppercase">WUNSCHDATUM</label>
-              <input
-                id="date"
-                type="date"
-                required
-                value={formData.date}
-                onChange={(e) => handleInputChange('date', e.target.value)}
-                className="w-full bg-transparent border border-white/20 px-4 py-3 focus:border-white focus:outline-none transition-colors"
-              />
+          {/* Date and Time Selection */}
+          {selectedService ? (
+            <div className="space-y-8">
+              <div>
+                <label className="block tracking-[0.05em] mb-4 uppercase">WUNSCHDATUM</label>
+                <CalendarWidget
+                  selectedDate={formData.date}
+                  onDateSelect={(date) => handleInputChange('date', date)}
+                  minDate={new Date().toISOString().split('T')[0]} // Today
+                />
+              </div>
+              
+              {formData.date && (
+                <div>
+                  <label className="block tracking-[0.05em] mb-4 uppercase">VERFÜGBARE ZEITEN</label>
+                  <TimeSlots
+                    selectedDate={formData.date}
+                    serviceDuration={getSelectedServiceDuration()}
+                    onTimeSelect={(time) => handleInputChange('time', time)}
+                    selectedTime={formData.time}
+                  />
+                </div>
+              )}
             </div>
-            <div>
-              <label htmlFor="time" className="block tracking-[0.05em] mb-2 uppercase">WUNSCHZEIT</label>
-              <select 
-                required
-                value={formData.time}
-                onChange={(e) => handleInputChange('time', e.target.value)}
-                className="w-full bg-black border border-white/20 px-4 py-3 focus:border-white focus:outline-none transition-colors uppercase"
-              >
-                <option value="">ZEIT AUSWÄHLEN</option>
-                <option value="09:00">9:00</option>
-                <option value="09:30">9:30</option>
-                <option value="10:00">10:00</option>
-                <option value="10:30">10:30</option>
-                <option value="11:00">11:00</option>
-                <option value="11:30">11:30</option>
-                <option value="12:00">12:00</option>
-                <option value="12:30">12:30</option>
-                <option value="13:00">13:00</option>
-                <option value="13:30">13:30</option>
-                <option value="14:00">14:00</option>
-                <option value="14:30">14:30</option>
-                <option value="15:00">15:00</option>
-                <option value="15:30">15:30</option>
-                <option value="16:00">16:00</option>
-                <option value="16:30">16:30</option>
-                <option value="17:00">17:00</option>
-                <option value="17:30">17:30</option>
-              </select>
+          ) : (
+            <div className="border border-white/20 p-8 text-center">
+              <p className="text-white/60 uppercase tracking-[0.05em]">
+                Bitte wählen Sie zuerst einen Service aus, um verfügbare Termine zu sehen
+              </p>
             </div>
-          </div>
+          )}
 
           {/* Special Requests */}
           <div>

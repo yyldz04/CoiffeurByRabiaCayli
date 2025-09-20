@@ -12,7 +12,7 @@ export function Footer({ onPageChange }: FooterProps) {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
           {/* Logo Section */}
           <div className="flex flex-col items-start">
-            <div className="h-8 w-20 mb-4">
+            <div className="h-8 w-8 mb-4">
               <ImageWithFallback
                 src="/CBRC-LOGO S.png"
                 alt="Salon Logo"
@@ -20,7 +20,7 @@ export function Footer({ onPageChange }: FooterProps) {
               />
             </div>
             <p className="text-white/60 uppercase tracking-[0.05em]">
-              Salon Booking System
+              COIFFEUR BY RABIA CAYLI  
             </p>
           </div>
 
@@ -70,7 +70,7 @@ export function Footer({ onPageChange }: FooterProps) {
         {/* Copyright */}
         <div className="border-t border-white/20 mt-8 pt-8 text-center">
           <p className="text-white/40 uppercase tracking-[0.05em]">
-            © 2024 Salon Booking System. Alle Rechte vorbehalten.
+            © 2024 COIFFEUR BY RABIA CAYLI  . Alle Rechte vorbehalten.
           </p>
         </div>
       </div>

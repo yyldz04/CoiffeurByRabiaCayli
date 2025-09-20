@@ -52,7 +52,8 @@ export function Navigation({ currentPage, onPageChange }: NavigationProps) {
     
     clickTimerRef.current = setTimeout(() => {
       if (clickCountRef.current === 3) {
-        onPageChange('admin');
+        // Redirect to admin route instead of using page change
+        window.location.href = '/admin';
       }
       clickCountRef.current = 0;
     }, 500);
@@ -68,10 +69,10 @@ export function Navigation({ currentPage, onPageChange }: NavigationProps) {
         {/* Logo with hidden admin access */}
         <div 
           className={`cursor-pointer transition-all duration-300 ${
-            isScrolled ? 'h-8 w-20' : 'h-16 w-40'
+            isScrolled ? 'h-8 w-8' : 'h-16 w-16'
           } scale-150`}
           onClick={handleLogoClick}
-          title="Coiffeur by Rabia Cayli"
+          title="COIFFEUR BY RABIA CAYLI "
         >
           <ImageWithFallback
             src="/CBRC-LOGO S.png"

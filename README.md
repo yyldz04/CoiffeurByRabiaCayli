@@ -1,4 +1,4 @@
-# 💇‍♀️ Coiffeur By Rabia Cayli
+# 💇‍♀️ COIFFEUR BY RABIA CAYLI 
 
 A modern, responsive salon booking website built with Next.js, featuring appointment scheduling, service management, and admin dashboard.
 
@@ -152,8 +152,8 @@ For questions or support, please contact the development team or refer to the do
 
 ## 📄 License
 
-This project is private and proprietary to Coiffeur By Rabia Cayli.
+This project is private and proprietary to COIFFEUR BY RABIA CAYLI .
 
 ---
 
-**Built with ❤️ for Coiffeur By Rabia Cayli**
+**Built with ❤️ for COIFFEUR BY RABIA CAYLI **

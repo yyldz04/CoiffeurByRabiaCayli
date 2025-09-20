@@ -115,6 +115,18 @@ export interface Appointment {
   }
 }
 
+export interface BusySlot {
+  id: string
+  busy_date: string
+  end_date?: string
+  start_time: string
+  end_time: string
+  title: string
+  description?: string
+  created_at: string
+  updated_at: string
+}
+
 // Authentication services - Simplified for single admin user
 export const authService = {
   // Sign in with email and password using service role key
@@ -481,6 +493,132 @@ export const appointmentService = {
     
     const result = await response.json();
     console.log('Conflict check result:', result.hasConflict);
+    
+    // Also check for busy slots
+    try {
+      const busySlotsForDate = await this.checkBusySlotConflict(date, time, time);
+      if (busySlotsForDate) {
+        console.log('Busy slot conflict found');
+        return true;
+      }
+    } catch (error) {
+      console.error('Error checking busy slots:', error);
+      // Don't throw here, just log the error and continue
+    }
+    
     return result.hasConflict;
+  },
+
+  // Check if a time slot conflicts with busy slots
+  async checkBusySlotConflict(date: string, startTime: string, endTime: string) {
+    try {
+      const busySlotsForDate = await busySlotService.getBusySlotsForDate(date);
+      
+      // Check if the appointment time overlaps with any busy slot
+      for (const slot of busySlotsForDate) {
+        if (startTime < slot.end_time && endTime > slot.start_time) {
+          return true;
+        }
+      }
+      
+      return false;
+    } catch (error) {
+      console.error('Error checking busy slot conflicts:', error);
+      return false; // Return false on error to not block appointments
+    }
+  }
+}
+
+// Busy slots management operations
+export const busySlotService = {
+  // Get all busy slots
+  async getBusySlots() {
+    const { data, error } = await supabaseAdmin
+      .from('busy_slots')
+      .select('*')
+      .order('busy_date', { ascending: true })
+      .order('start_time', { ascending: true })
+
+    if (error) throw error
+    return data || []
+  },
+
+  // Get busy slots for a specific date
+  async getBusySlotsForDate(date: string) {
+    const { data, error } = await supabaseAdmin
+      .from('busy_slots')
+      .select('*')
+      .or(`and(busy_date.eq.${date}),and(busy_date.lte.${date},end_date.gte.${date})`)
+      .order('start_time', { ascending: true })
+
+    if (error) throw error
+    return data || []
+  },
+
+  // Create a new busy slot
+  async createBusySlot(slotData: {
+    busy_date: string
+    end_date?: string
+    start_time: string
+    end_time: string
+    title: string
+    description?: string
+  }) {
+    const { data, error } = await supabaseAdmin
+      .from('busy_slots')
+      .insert([slotData])
+      .select()
+      .single()
+
+    if (error) throw error
+    return data
+  },
+
+  // Update a busy slot
+  async updateBusySlot(slotId: string, slotData: {
+    busy_date: string
+    end_date?: string
+    start_time: string
+    end_time: string
+    title: string
+    description?: string
+  }) {
+    const { data, error } = await supabaseAdmin
+      .from('busy_slots')
+      .update(slotData)
+      .eq('id', slotId)
+      .select()
+      .single()
+
+    if (error) throw error
+    return data
+  },
+
+  // Delete a busy slot
+  async deleteBusySlot(slotId: string) {
+    const { error } = await supabaseAdmin
+      .from('busy_slots')
+      .delete()
+      .eq('id', slotId)
+
+    if (error) throw error
+  },
+
+  // Check if a time slot conflicts with busy slots
+  async checkBusySlotConflict(date: string, startTime: string, endTime: string, excludeId?: string) {
+    let query = supabaseAdmin
+      .from('busy_slots')
+      .select('id, start_time, end_time, title')
+      .or(`and(busy_date.eq.${date}),and(busy_date.lte.${date},end_date.gte.${date})`)
+      .or(`and(start_time.lt.${endTime},end_time.gt.${startTime})`)
+
+    if (excludeId) {
+      query = query.neq('id', excludeId)
+    }
+
+    const { data, error } = await query
+
+    if (error) throw error
+    return data && data.length > 0
   }
 }

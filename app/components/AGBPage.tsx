@@ -12,7 +12,7 @@ export function AGBPage() {
             <div className="text-white/70 space-y-4 uppercase">
               <p>
                 Diese Allgemeinen Geschäftsbedingungen gelten für alle Dienstleistungen von 
-                Salon Booking System. Mit der Inanspruchnahme unserer Dienstleistungen 
+                COIFFEUR BY RABIA CAYLI  . Mit der Inanspruchnahme unserer Dienstleistungen 
                 erkennen Sie diese Bedingungen an.
               </p>
             </div>

@@ -1,20 +1,40 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
+import { ClientPageWrapper } from "./components/ClientPageWrapper";
+import { MaintenanceChecker } from "./components/MaintenanceChecker";
+import { headers } from "next/headers";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Coiffeur by Rabia Cayli",
-  description: "Dein Coiffeur in Vorarlberg",
+  title: "CBRC - Coiffeur by Rabia Cayli",
+  description: "Professional hair salon services",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
+  const headersList = await headers();
+  const pathname = headersList.get('x-pathname') || headersList.get('x-invoke-path') || '';
+  
+  // Check if this is an admin route
+  const isAdminRoute = pathname.startsWith('/admin');
+  
   return (
-    <html lang="en" className="dark">
-      <body className="bg-black text-white min-h-screen">
-        {children}
+    <html lang="de">
+      <body className={inter.className}>
+        {isAdminRoute ? (
+          children
+        ) : (
+          <MaintenanceChecker>
+            <ClientPageWrapper>
+              {children}
+            </ClientPageWrapper>
+          </MaintenanceChecker>
+        )}
       </body>
     </html>
   );

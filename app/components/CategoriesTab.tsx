@@ -151,7 +151,7 @@ export function CategoriesTab() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 px-0 md:px-4 xl:px-0">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <div>

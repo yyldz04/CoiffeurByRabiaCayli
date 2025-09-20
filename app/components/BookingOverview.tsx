@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { appointmentService } from '../utils/supabase/client';
-// import { projectId, publicAnonKey } from '../utils/supabase/info';
 
 interface BookingData {
   firstName: string;
@@ -22,7 +21,7 @@ interface BookingOverviewProps {
   isOpen: boolean;
   onClose: () => void;
   bookingData: BookingData;
-  services: Array<{ id: string; name: string; duration: string; price: string }>;
+  services: Array<{ id: string; name: string; duration: string; durationMinutes: number; price: string }>;
 }
 
 export function BookingOverview({ isOpen, onClose, bookingData, services }: BookingOverviewProps) {

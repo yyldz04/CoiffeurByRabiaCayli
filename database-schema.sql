@@ -1,5 +1,5 @@
 -- =====================================================
--- CBRC Salon Booking System - Clean Schema (Supabase)
+-- CBRC COIFFEUR BY RABIA CAYLI   - Clean Schema (Supabase)
 -- =====================================================
 
 -- Enable UUIDs
@@ -69,6 +69,30 @@ CREATE TABLE public.appointments (
   cancelled_at TIMESTAMPTZ
 );
 
+-- Busy time slots (admin reserved times)
+CREATE TABLE public.busy_slots (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  busy_date DATE NOT NULL,
+  end_date DATE,
+  start_time TIME NOT NULL,
+  end_time TIME NOT NULL,
+  title TEXT NOT NULL DEFAULT 'Besetzt',
+  description TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  CONSTRAINT valid_time_range CHECK (end_time > start_time),
+  CONSTRAINT valid_date_range CHECK (end_date IS NULL OR end_date >= busy_date)
+);
+
+-- Settings table for website configuration
+CREATE TABLE public.settings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  maintenance_mode BOOLEAN NOT NULL DEFAULT false,
+  maintenance_message TEXT NOT NULL DEFAULT 'Wir sind bald wieder da!',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- =====================================================
 -- ROW LEVEL SECURITY (RLS)
 -- =====================================================
@@ -78,6 +102,8 @@ ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.service_groups ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.services ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.appointments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.busy_slots ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.settings ENABLE ROW LEVEL SECURITY;
 
 -- =====================================================
 -- POLICIES
@@ -107,6 +133,17 @@ CREATE POLICY "Staff manage services" ON public.services
 -- Only staff can see/manage directly
 CREATE POLICY "Staff manage appointments" ON public.appointments
   FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+-- Busy slots: staff only
+CREATE POLICY "Staff manage busy slots" ON public.busy_slots
+  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+-- Settings: staff only for management, public read for maintenance mode
+CREATE POLICY "Staff manage settings" ON public.settings
+  FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY "Public can read settings for maintenance check" ON public.settings
+  FOR SELECT TO anon USING (true);
 
 -- No anon policies → frontend cannot insert/read appointments directly
 -- Edge function with service_role inserts new appointments
@@ -140,6 +177,14 @@ CREATE TRIGGER update_appointments_updated_at
   BEFORE UPDATE ON public.appointments
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
+CREATE TRIGGER update_busy_slots_updated_at
+  BEFORE UPDATE ON public.busy_slots
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
+CREATE TRIGGER update_settings_updated_at
+  BEFORE UPDATE ON public.settings
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
 -- =====================================================
 -- GRANTS
 -- =====================================================
@@ -152,6 +197,9 @@ GRANT ALL ON ALL TABLES IN SCHEMA public TO authenticated;
 
 -- Service role: bypass policies (for edge functions)
 GRANT ALL ON ALL TABLES IN SCHEMA public TO service_role;
+
+-- Anon: read-only access to settings (for maintenance mode check)
+GRANT SELECT ON public.settings TO anon;
 
 -- Anon: only read categories/services
 GRANT SELECT ON public.categories TO anon;

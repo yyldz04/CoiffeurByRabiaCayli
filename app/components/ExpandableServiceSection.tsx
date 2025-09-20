@@ -43,8 +43,8 @@ export function ExpandableServiceSection({
       {isExpanded && (
         <div className="border-t border-white/20 p-4 md:p-6">
           {showWarning && (
-            <div className="border border-red-500/30 bg-red-500/5 p-4 mb-6 text-center">
-              <p className="text-red-400 tracking-[0.05em] uppercase">
+            <div className="border border-white/30 bg-white/10 p-4 mb-6 text-center">
+              <p className="text-white/80 tracking-[0.05em] uppercase">
                 FÄRBUNG IST NUR AB 16 JAHREN GESTATTET
               </p>
             </div>
@@ -61,7 +61,9 @@ export function ExpandableServiceSection({
               >
                 <h5 className="tracking-[0.05em] mb-2 uppercase">{service.name}</h5>
                 <p className="text-sm opacity-70 uppercase">{service.duration}</p>
-                <p className="tracking-[0.05em] uppercase">{service.price}</p>
+                {service.price !== '0€' && service.price !== '0.00€' && (
+                  <p className="tracking-[0.05em] uppercase">{service.price}</p>
+                )}
               </div>
             ))}
           </div>

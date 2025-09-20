@@ -52,7 +52,7 @@ export function AdminLogin({ onLogin }: AdminLoginProps) {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-3xl tracking-[0.2em] mb-2 uppercase">Admin Login</h1>
-          <p className="text-white/60 uppercase">Salon Booking System</p>
+          <p className="text-white/60 uppercase">COIFFEUR BY RABIA CAYLI  </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">

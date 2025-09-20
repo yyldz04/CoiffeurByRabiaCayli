@@ -25,9 +25,9 @@ export function ContactPage() {
                 ADRESSE
               </h4>
               <p className="text-white/70 uppercase">
-                Mariahilfer Straße 123
+                St. Ulrich Straße 28
                 <br />
-                1060 Wien
+                6843 Götzis
                 <br />
                 Österreich
               </p>
@@ -38,7 +38,7 @@ export function ContactPage() {
                 TELEFON
               </h4>
               <p className="text-white/70 uppercase">
-                +43 1 123-4567
+                <a href="tel:+436765209297">+43 676 5209297</a>
               </p>
             </div>
 
@@ -47,7 +47,7 @@ export function ContactPage() {
                 E-MAIL
               </h4>
               <p className="text-white/70 uppercase">
-                hallo@cbrc.at
+                <a href="mailto:contact@coiffeurbyrabiacayli.at">contact@coiffeurbyrabiacayli.at</a>
               </p>
             </div>
 
@@ -55,10 +55,31 @@ export function ContactPage() {
               <h4 className="tracking-[0.1em] mb-2 uppercase">
                 ÖFFNUNGSZEITEN
               </h4>
-              <div className="text-white/70 space-y-1 uppercase">
-                <p>Montag - Freitag: 9:00 - 19:00 Uhr</p>
-                <p>Samstag: 9:00 - 18:00 Uhr</p>
-                <p>Sonntag: 11:00 - 17:00 Uhr</p>
+              <div className="text-white/70 uppercase space-y-1">
+                <div className="flex justify-between">
+                  <span>Montag</span>
+                  <span>9:00 - 19:00 Uhr</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Dienstag</span>
+                  <span>9:00 - 19:00 Uhr</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Mittwoch</span>
+                  <span>9:00 - 19:00 Uhr</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Donnerstag</span>
+                  <span>9:00 - 19:00 Uhr</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Freitag</span>
+                  <span>9:00 - 19:00 Uhr</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Samstag</span>
+                  <span>Auf Anfrage</span>
+                </div>
               </div>
             </div>
 
@@ -68,7 +89,7 @@ export function ContactPage() {
                 STANDORT
               </h4>
               <div className="border border-white/20 aspect-video bg-white/5 flex items-center justify-center">
-              <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2703.894202487048!2d9.637287077235797!3d47.3359374711663!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x479b399bdc42961f%3A0x8ca0b5437aaf9bd4!2sLE%20DUIGOU%20G%C3%96TZIS%20-%20Parf%C3%BCmerie%20-%20Kosmetik%20-%20Fusspflege!5e0!3m2!1sde!2sat!4v1758228306795!5m2!1sde!2sat" width="600" height="450" allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade"></iframe>
+              <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d412.0627449603479!2d9.640753125757318!3d47.33542876167068!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x479b3e4121edee71%3A0xb7fd23f00692fa7d!2sSankt-Ulrich-Stra%C3%9Fe%2028%2C%206840%20G%C3%B6tzis!5e0!3m2!1sen!2sat!4v1758365614590!5m2!1sen!2sat" width="600" height="450" style={{border:0}} allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade"></iframe>
               </div>
             </div>
           </div>
@@ -85,7 +106,7 @@ export function ContactPage() {
             <div
               className="border border-white/20 p-6 cursor-pointer transition-colors hover:bg-white/5"
               onClick={() =>
-                window.open("https://wa.me/431234567", "_blank")
+                window.open("https://wa.me/436765209297", "_blank")
               }
             >
               <div className="flex items-center justify-between mb-4">
@@ -99,7 +120,7 @@ export function ContactPage() {
                 schnelle Antworten und Terminvereinbarungen.
               </p>
               <p className="text-white/60 uppercase tracking-[0.05em]">
-                +43 1 123-4567
+                +43 676 5209297
               </p>
             </div>
 
@@ -108,7 +129,7 @@ export function ContactPage() {
               className="border border-white/20 p-6 cursor-pointer transition-colors hover:bg-white/5"
               onClick={() =>
                 window.open(
-                  "https://www.instagram.com/your_salon_handle/",
+                  "https://www.instagram.com/coiffeur.by.rabiacayli/",
                   "_blank",
                 )
               }
@@ -124,7 +145,7 @@ export function ContactPage() {
                 uns eine Nachricht über Instagram.
               </p>
               <p className="text-white/60 uppercase tracking-[0.05em]">
-                @cbrc.salon
+                @coiffeur.by.rabiacayli
               </p>
             </div>
           </div>

@@ -314,13 +314,13 @@ export function AddServiceGroup({ onSuccess, onCancel }: AddServiceGroupProps) {
             )}
 
             <div className="flex gap-4 mt-8">
-              <Button
+              <button
                 type="button"
                 onClick={onCancel}
-                className="flex-1 bg-transparent border border-white/20 px-8 py-3 tracking-[0.1em] hover:bg-white hover:text-black transition-colors uppercase"
+                className="flex-1 bg-transparent border border-white/20 px-6 py-3 tracking-[0.05em] hover:bg-white hover:text-black transition-colors uppercase"
               >
                 Abbrechen
-              </Button>
+              </button>
               <Button
                 type="submit"
                 disabled={isLoading}

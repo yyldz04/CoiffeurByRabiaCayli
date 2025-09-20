@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from "react";
-import { Plus, Edit2, Trash2, ChevronDown, ChevronRight, Upload, Settings, Search } from "lucide-react";
+import { Plus, Edit2, Trash2, ChevronDown, ChevronRight, Upload, Settings, Search, Banknote } from "lucide-react";
 import { serviceService, ServiceGroup, Service, categoryService, Category } from "../utils/supabase/client";
 import { AddServiceGroup } from "./AddServiceGroup";
 import { EditServiceGroup } from "./EditServiceGroup";
 import { DeleteServiceGroup } from "./DeleteServiceGroup";
 import { ServiceGroupImportData } from "../types";
 import * as yaml from 'js-yaml';
+import { PaymentDialog } from './PaymentDialog';
 
 export function ServicesTab() {
   const [serviceGroups, setServiceGroups] = useState<(ServiceGroup & { services: Service[] })[]>([]);
@@ -21,6 +22,11 @@ export function ServicesTab() {
   const [isImporting, setIsImporting] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [paymentDialog, setPaymentDialog] = useState<{
+    isOpen: boolean;
+    service: Service | null;
+    serviceGroup: ServiceGroup | null;
+  }>({ isOpen: false, service: null, serviceGroup: null });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Load service groups and categories from Supabase
@@ -265,7 +271,7 @@ export function ServicesTab() {
 
   return (
     <div className="min-h-screen bg-black text-white">
-      <div className="max-w-6xl mx-auto space-y-6 px-0 md:px-4 xl:px-0">
+      <div className="space-y-6">
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
@@ -285,8 +291,8 @@ export function ServicesTab() {
             
             <button
               onClick={() => setIsAddDialogOpen(true)}
-              className="bg-white text-black border border-white px-8 py-3 tracking-[0.1em] hover:bg-white/90 transition-colors uppercase"
-            >
+              className="bg-transparent border border-white/20 px-8 py-3 tracking-[0.1em] hover:bg-white hover:text-black transition-colors uppercase"
+              >
               <Plus className="w-4 h-4 inline mr-2" />
               Hinzufügen
             </button>
@@ -458,13 +464,22 @@ export function ServicesTab() {
                             <h4 className="text-lg tracking-[0.05em] uppercase">
                               {getHairLengthLabel(service.hair_length)}
                             </h4>
-                            <span className={`text-xs px-2 py-1 uppercase tracking-[0.05em] border ${
-                              service.is_active 
-                                ? 'bg-green-500/20 text-green-400 border-green-500/30' 
-                                : 'bg-red-500/20 text-red-400 border-red-500/30'
-                            }`}>
-                              {service.is_active ? 'Aktiv' : 'Inaktiv'}
-                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className={`text-xs px-2 py-1 uppercase tracking-[0.05em] border ${
+                                service.is_active 
+                                  ? 'bg-green-500/20 text-green-400 border-green-500/30' 
+                                  : 'bg-red-500/20 text-red-400 border-red-500/30'
+                              }`}>
+                                {service.is_active ? 'Aktiv' : 'Inaktiv'}
+                              </span>
+                              <button
+                                onClick={() => setPaymentDialog({ isOpen: true, service, serviceGroup: group })}
+                                className="p-1 text-yellow-400 hover:text-yellow-300 transition-colors"
+                                title="Zahlung"
+                              >
+                                <Banknote className="w-4 h-4" />
+                              </button>
+                            </div>
                           </div>
                           <div className="space-y-1 text-sm">
                             <p className="text-white/80">
@@ -516,6 +531,16 @@ export function ServicesTab() {
             </div>
           </div>
         )}
+        
+        {/* Payment Dialog */}
+        <PaymentDialog
+          isOpen={paymentDialog.isOpen}
+          onClose={() => setPaymentDialog({ isOpen: false, service: null, serviceGroup: null })}
+          amount={paymentDialog.service?.price_euros || 0}
+          appointmentId=""
+          serviceName={paymentDialog.serviceGroup?.title || 'N/A'}
+          customerName="Direkte Zahlung"
+        />
       </div>
     </div>
   );

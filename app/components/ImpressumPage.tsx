@@ -10,7 +10,7 @@ export function ImpressumPage() {
           <div>
             <h3 className="tracking-[0.1em] mb-4 uppercase">Angaben gemäß § 5 TMG</h3>
             <div className="text-white/70 space-y-2 uppercase">
-              <p>Salon Booking System</p>
+              <p>COIFFEUR BY RABIA CAYLI  </p>
               <p>Salon Owner</p>
               <p>Mariahilfer Straße 123</p>
               <p>1060 Wien</p>
