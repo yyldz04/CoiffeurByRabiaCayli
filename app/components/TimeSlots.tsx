@@ -25,6 +25,29 @@ export function TimeSlots({ selectedDate, serviceDuration, onTimeSelect, selecte
   const BUSINESS_START = 9;
   const BUSINESS_END = 18;
 
+  const generateBasicTimeSlots = useCallback(() => {
+    const slots: TimeSlot[] = [];
+    
+    for (let hour = BUSINESS_START; hour < BUSINESS_END; hour++) {
+      for (let minute = 0; minute < 60; minute += 30) {
+        const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        
+        // Check if this slot + duration would exceed business hours
+        const endHour = hour + Math.floor((minute + serviceDuration) / 60);
+        const endMinute = (minute + serviceDuration) % 60;
+        
+        if (endHour < BUSINESS_END || (endHour === BUSINESS_END && endMinute === 0)) {
+          slots.push({
+            time: timeStr,
+            available: true
+          });
+        }
+      }
+    }
+    
+    setTimeSlots(slots);
+  }, [serviceDuration]);
+
   const fetchAvailableTimeSlots = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -57,29 +80,6 @@ export function TimeSlots({ selectedDate, serviceDuration, onTimeSelect, selecte
       setLoading(false);
     }
   }, [selectedDate, serviceDuration, generateBasicTimeSlots]);
-
-  const generateBasicTimeSlots = useCallback(() => {
-    const slots: TimeSlot[] = [];
-    
-    for (let hour = BUSINESS_START; hour < BUSINESS_END; hour++) {
-      for (let minute = 0; minute < 60; minute += 30) {
-        const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-        
-        // Check if this slot + duration would exceed business hours
-        const endHour = hour + Math.floor((minute + serviceDuration) / 60);
-        const endMinute = (minute + serviceDuration) % 60;
-        
-        if (endHour < BUSINESS_END || (endHour === BUSINESS_END && endMinute === 0)) {
-          slots.push({
-            time: timeStr,
-            available: true
-          });
-        }
-      }
-    }
-    
-    setTimeSlots(slots);
-  }, [serviceDuration]);
 
   useEffect(() => {
     if (selectedDate) {
