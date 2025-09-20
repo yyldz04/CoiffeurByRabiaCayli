@@ -18,6 +18,12 @@ export function ClientPageWrapper({ children }: { children?: React.ReactNode }) 
   const [currentPage, setCurrentPage] = useState('home');
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
 
+  // Check admin login status on app load - always call hooks at the top level
+  useEffect(() => {
+    const adminLoggedIn = localStorage.getItem('cbrc_admin_logged_in') === 'true';
+    setIsAdminLoggedIn(adminLoggedIn);
+  }, []);
+
   // Check if this is an admin route
   const isAdminRoute = pathname?.startsWith('/admin');
   
@@ -25,12 +31,6 @@ export function ClientPageWrapper({ children }: { children?: React.ReactNode }) 
   if (isAdminRoute) {
     return <>{children}</>;
   }
-
-  // Check admin login status on app load
-  useEffect(() => {
-    const adminLoggedIn = localStorage.getItem('cbrc_admin_logged_in') === 'true';
-    setIsAdminLoggedIn(adminLoggedIn);
-  }, []);
 
   // Admin login handler
   const handleAdminLogin = () => {

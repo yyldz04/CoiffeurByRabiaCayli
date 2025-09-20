@@ -70,7 +70,7 @@ export function Footer({ onPageChange }: FooterProps) {
         {/* Copyright */}
         <div className="border-t border-white/20 mt-8 pt-8 text-center">
           <p className="text-white/40 uppercase tracking-[0.05em]">
-            © 2024 COIFFEUR BY RABIA CAYLI  . Alle Rechte vorbehalten.
+            © {new Date().getFullYear()} COIFFEUR BY RABIA CAYLI  . Alle Rechte vorbehalten.
           </p>
         </div>
       </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Clock, Loader2 } from "lucide-react";
 
 interface TimeSlot {
@@ -25,13 +25,7 @@ export function TimeSlots({ selectedDate, serviceDuration, onTimeSelect, selecte
   const BUSINESS_START = 9;
   const BUSINESS_END = 18;
 
-  useEffect(() => {
-    if (selectedDate) {
-      fetchAvailableTimeSlots();
-    }
-  }, [selectedDate, serviceDuration]);
-
-  const fetchAvailableTimeSlots = async () => {
+  const fetchAvailableTimeSlots = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -62,9 +56,9 @@ export function TimeSlots({ selectedDate, serviceDuration, onTimeSelect, selecte
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedDate, serviceDuration]);
 
-  const generateBasicTimeSlots = () => {
+  const generateBasicTimeSlots = useCallback(() => {
     const slots: TimeSlot[] = [];
     
     for (let hour = BUSINESS_START; hour < BUSINESS_END; hour++) {
@@ -85,7 +79,13 @@ export function TimeSlots({ selectedDate, serviceDuration, onTimeSelect, selecte
     }
     
     setTimeSlots(slots);
-  };
+  }, [serviceDuration]);
+
+  useEffect(() => {
+    if (selectedDate) {
+      fetchAvailableTimeSlots();
+    }
+  }, [selectedDate, serviceDuration, fetchAvailableTimeSlots]);
 
   const formatTime = (time: string) => {
     return time.substring(0, 5);
@@ -136,7 +136,9 @@ export function TimeSlots({ selectedDate, serviceDuration, onTimeSelect, selecte
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              slot.available && onTimeSelect(slot.time);
+              if (slot.available) {
+                onTimeSelect(slot.time);
+              }
             }}
             disabled={!slot.available}
             className={`

@@ -11,6 +11,30 @@ import {
 } from "./ui/dialog";
 import { Button } from "./ui/button";
 
+// Define types for GlobalPayments SDK
+interface GlobalPaymentsSDK {
+  charge(data: PaymentData): Promise<PaymentResponse>;
+}
+
+interface PaymentData {
+  amount: string;
+  currency: string;
+  cardNumber: string;
+  cardExpiry: string;
+  cardCvc: string;
+}
+
+interface PaymentResponse {
+  status: 'success' | 'error';
+  message?: string;
+}
+
+declare global {
+  interface Window {
+    GlobalPayments: new () => GlobalPaymentsSDK;
+  }
+}
+
 interface PaymentDialogProps {
   isOpen: boolean;
   onClose: () => void;
@@ -30,8 +54,8 @@ export function PaymentDialog({ isOpen, onClose, amount = 0, appointmentId, serv
     
     try {
       // Check if Global Payments SDK is loaded
-      if (typeof window !== 'undefined' && (window as any).GlobalPayments) {
-        const payments = new (window as any).GlobalPayments();
+      if (typeof window !== 'undefined' && window.GlobalPayments) {
+        const payments = new window.GlobalPayments();
         
         // Configure payment parameters
         const paymentData = {

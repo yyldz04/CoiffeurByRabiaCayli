@@ -31,7 +31,6 @@ export function CalendarWidget({
     const year = currentMonth.getFullYear();
     const month = currentMonth.getMonth();
     const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
     
     // Get the first Monday of the month (or previous month)
     const startDate = new Date(firstDay);
@@ -136,7 +135,6 @@ export function CalendarWidget({
       {/* Calendar days */}
       <div className="grid grid-cols-7 gap-1">
         {calendarDays.map((date, index) => {
-          const dateStr = date.toISOString().split('T')[0];
           const disabled = isDateDisabled(date);
           const selected = isDateSelected(date);
           const currentMonth = isCurrentMonth(date);

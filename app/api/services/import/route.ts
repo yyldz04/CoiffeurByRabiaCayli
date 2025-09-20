@@ -12,7 +12,7 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey)
 export async function POST(request: NextRequest) {
   try {
     const contentType = request.headers.get('content-type') || '';
-    let body: { data?: ServiceGroupImportData[]; categories?: any[]; service_groups?: ServiceGroupImportData[]; shouldClear: boolean };
+    let body: { data?: ServiceGroupImportData[]; categories?: Array<{name: string; description?: string; order_index?: number; is_active?: boolean}>; service_groups?: ServiceGroupImportData[]; shouldClear: boolean };
     
     if (contentType.includes('application/x-yaml') || contentType.includes('text/yaml')) {
       const yamlText = await request.text();

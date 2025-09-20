@@ -6,7 +6,7 @@ import { ServicesTab } from "./ServicesTab";
 import { CategoriesTab } from "./CategoriesTab";
 import { SettingsTab } from "./SettingsTab";
 import { SegmentPicker } from "./SegmentPicker";
-import { LogOut, RefreshCw } from "lucide-react";
+import { LogOut } from "lucide-react";
 
 interface AdminDashboardProps {
   onLogout: () => void;

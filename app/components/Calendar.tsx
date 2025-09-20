@@ -10,11 +10,10 @@ import { BusySlotDialog } from './BusySlotDialog';
 type CalendarView = 'day' | 'week' | 'month';
 
 interface CalendarProps {
-  currentTime: Date;
   onBack: () => void;
 }
 
-export function Calendar({ currentTime, onBack }: CalendarProps) {
+export function Calendar({ onBack }: CalendarProps) {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [busySlots, setBusySlots] = useState<BusySlot[]>([]);
   const [loading, setLoading] = useState(true);
@@ -609,7 +608,7 @@ export function Calendar({ currentTime, onBack }: CalendarProps) {
 
   // Render month view
   const renderMonthView = () => {
-    const { firstDay, lastDay, appointments: monthAppointments } = getAppointmentsForMonth(currentDate);
+    const { firstDay, appointments: monthAppointments } = getAppointmentsForMonth(currentDate);
     const weekDays = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
     
     // Get the first Monday of the month (or previous month)

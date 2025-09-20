@@ -1,10 +1,9 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Plus, Edit2, Trash2, ChevronDown, ChevronRight, Upload, Settings, Search, Banknote } from "lucide-react";
 import { serviceService, ServiceGroup, Service, categoryService, Category } from "../utils/supabase/client";
 import { AddServiceGroup } from "./AddServiceGroup";
 import { EditServiceGroup } from "./EditServiceGroup";
 import { DeleteServiceGroup } from "./DeleteServiceGroup";
-import { ServiceGroupImportData } from "../types";
 import * as yaml from 'js-yaml';
 import { PaymentDialog } from './PaymentDialog';
 
@@ -35,11 +34,6 @@ export function ServicesTab() {
     loadCategories();
   }, []);
 
-  // Filter service groups when search term or category changes
-  useEffect(() => {
-    filterServiceGroups();
-  }, [searchTerm, selectedCategory, allServiceGroups]);
-
   const loadServiceGroups = async () => {
     try {
       setIsLoading(true);
@@ -64,7 +58,7 @@ export function ServicesTab() {
     }
   };
 
-  const filterServiceGroups = () => {
+  const filterServiceGroups = useCallback(() => {
     let filtered = allServiceGroups;
 
     // Filter by category
@@ -86,7 +80,12 @@ export function ServicesTab() {
     }
 
     setServiceGroups(filtered);
-  };
+  }, [allServiceGroups, selectedCategory, searchTerm]);
+
+  // Filter service groups when search term or category changes
+  useEffect(() => {
+    filterServiceGroups();
+  }, [searchTerm, selectedCategory, allServiceGroups, filterServiceGroups]);
 
 
   const toggleGroupExpansion = (groupId: string) => {

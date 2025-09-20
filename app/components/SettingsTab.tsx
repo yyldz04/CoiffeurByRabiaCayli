@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Settings, Save, RefreshCw, AlertTriangle } from "lucide-react";
+import { Save, RefreshCw, AlertTriangle } from "lucide-react";
 import { Toggle } from "./ui/toggle";
 
 interface SettingsData {

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 // import { Button } from "./ui/button";
-import { ChevronDown, ChevronUp, Clock, User, Mail, Phone, CreditCard, RefreshCw, Calendar as CalendarIcon } from "lucide-react";
+import { Clock, User, Mail, Phone, CreditCard, RefreshCw, Calendar as CalendarIcon } from "lucide-react";
 import { appointmentService, Appointment } from '../utils/supabase/client';
 import { PaymentDialog } from './PaymentDialog';
 import { Calendar } from './Calendar';
@@ -375,16 +375,10 @@ export function AppointmentsTab({ currentTime, onCalendarToggle }: AppointmentsT
     );
   }
 
-  // Sort appointments by date and time
-  const sortedAppointments = [...appointments].sort((a, b) => {
-    const dateA = new Date(`${a.appointment_date}T${a.appointment_time}`);
-    const dateB = new Date(`${b.appointment_date}T${b.appointment_time}`);
-    return dateA.getTime() - dateB.getTime();
-  });
 
   // Show calendar view if requested
   if (showCalendar) {
-    return <Calendar currentTime={currentTime} onBack={() => {
+    return <Calendar onBack={() => {
       setShowCalendar(false);
       onCalendarToggle(false);
     }} />;
