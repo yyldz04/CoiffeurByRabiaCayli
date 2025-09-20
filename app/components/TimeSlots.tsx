@@ -56,7 +56,7 @@ export function TimeSlots({ selectedDate, serviceDuration, onTimeSelect, selecte
     } finally {
       setLoading(false);
     }
-  }, [selectedDate, serviceDuration]);
+  }, [selectedDate, serviceDuration, generateBasicTimeSlots]);
 
   const generateBasicTimeSlots = useCallback(() => {
     const slots: TimeSlot[] = [];

@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+
+// Validate required environment variables
+if (!supabaseUrl || !supabaseServiceKey) {
+  console.error('Missing required Supabase environment variables');
+}
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -13,6 +18,14 @@ interface TimeSlotRequest {
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if Supabase is properly configured
+    if (!supabaseUrl || !supabaseServiceKey) {
+      return NextResponse.json(
+        { error: 'Server configuration error - Supabase not configured' },
+        { status: 500 }
+      );
+    }
+
     const { date, duration }: TimeSlotRequest = await request.json();
 
     if (!date || !duration) {
