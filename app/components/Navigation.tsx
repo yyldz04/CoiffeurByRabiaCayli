@@ -75,7 +75,7 @@ export function Navigation({ currentPage, onPageChange }: NavigationProps) {
           title="COIFFEUR BY RABIA CAYLI "
         >
           <ImageWithFallback
-            src="/CBRC-LOGO S.png"
+            src="/CBRC-LOGO-S.png"
             alt="CBRC Logo"
             className="h-full w-full object-contain"
           />

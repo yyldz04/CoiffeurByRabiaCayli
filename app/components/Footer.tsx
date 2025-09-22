@@ -14,7 +14,7 @@ export function Footer({ onPageChange }: FooterProps) {
           <div className="flex flex-col items-start">
             <div className="h-8 w-8 mb-4">
               <ImageWithFallback
-                src="/CBRC-LOGO S.png"
+                src="/CBRC-LOGO-S.png"
                 alt="Salon Logo"
                 className="h-full w-full object-contain"
               />
