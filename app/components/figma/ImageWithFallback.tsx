@@ -8,6 +8,8 @@ const ERROR_IMG_SRC =
 
 interface ImageWithFallbackProps extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, 'src'> {
   src: string;
+  width?: number;
+  height?: number;
 }
 
 export function ImageWithFallback(props: ImageWithFallbackProps) {
@@ -17,7 +19,7 @@ export function ImageWithFallback(props: ImageWithFallbackProps) {
     setDidError(true)
   }
 
-  const { src, alt, style, className, ...rest } = props
+  const { src, alt, style, className, width = 88, height = 88, ...rest } = props
 
   return didError ? (
     <div
@@ -25,10 +27,10 @@ export function ImageWithFallback(props: ImageWithFallbackProps) {
       style={style}
     >
       <div className="flex items-center justify-center w-full h-full">
-        <Image src={ERROR_IMG_SRC} alt="Error loading image" {...rest} data-original-url={src} width={88} height={88} />
+        <Image src={ERROR_IMG_SRC} alt="Error loading image" {...rest} data-original-url={src} width={width} height={height} />
       </div>
     </div>
   ) : (
-    <Image src={src || ''} alt={alt || ''} className={className} style={style} {...rest} onError={handleError} width={88} height={88} />
+    <Image src={src || ''} alt={alt || ''} className={className} style={style} {...rest} onError={handleError} width={width} height={height} />
   )
 }

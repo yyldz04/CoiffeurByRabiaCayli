@@ -8,15 +8,15 @@ interface HomePageProps {
 export function HomePage({ onPageChange }: HomePageProps) {
   const galleryImages = [
     {
-      url: "https://images.unsplash.com/photo-1600948836101-f9ffda59d250?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxoYWlyJTIwc2Fsb24lMjBpbnRlcmlvcnxlbnwxfHx8fDE3NTc3NTcwMDF8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
+      url: "https://images.unsplash.com/photo-1600948836101-f9ffda59d250?w=1080&q=80",
       alt: "Hair salon interior"
     },
     {
-      url: "https://images.unsplash.com/photo-1680772856779-43eef7cabf18?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxiZWF1dHklMjBzYWxvbiUyMGNoYWlyc3xlbnwxfHx8fDE3NTc4NzU2NDV8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
+      url: "https://images.unsplash.com/photo-1680772856779-43eef7cabf18?w=1080&q=80",
       alt: "Beauty salon chairs"
     },
     {
-      url: "https://images.unsplash.com/photo-1595284843291-e8d7eb9ebe27?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzYWxvbiUyMHdvcmtzcGFjZXxlbnwxfHx8fDE3NTc4NzU2NDV8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
+      url: "https://images.unsplash.com/photo-1595284843291-e8d7eb9ebe27?w=1080&q=80",
       alt: "Salon workspace"
     }
   ];
