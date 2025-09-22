@@ -67,7 +67,7 @@ export function AdminLogin({ onLogin }: AdminLoginProps) {
                   value={credentials.email}
                   onChange={(e) => setCredentials({...credentials, email: e.target.value})}
                   className="w-full bg-transparent border border-white/20 px-4 py-3 focus:border-white focus:outline-none transition-colors"
-                  placeholder="ADMIN@SALON.COM"
+                  placeholder="contact@coiffeurbyrabiacayli.at"
                   required
                 />
               </div>

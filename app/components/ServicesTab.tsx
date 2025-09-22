@@ -276,7 +276,7 @@ export function ServicesTab() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-3xl tracking-[0.2em] mb-2 uppercase">Dienstleistungen</h1>
-              <p className="text-white/60 uppercase">Verwalten Sie Ihre Salon-Dienstleistungen</p>
+              <p className="text-white/60 uppercase">Verwalten Sie Ihre Dienstleistungen</p>
             </div>
           <div className="flex gap-4">
             {/* Dev Tools Toggle - Subtle */}

@@ -12,8 +12,8 @@ export function ImpressumPage() {
             <div className="text-white/70 space-y-2 uppercase">
               <p>COIFFEUR BY RABIA CAYLI  </p>
               <p>Salon Owner</p>
-              <p>Mariahilfer Straße 123</p>
-              <p>1060 Wien</p>
+              <p>St. Ulrich Straße 28</p>
+              <p>6843 Götzis</p>
               <p>Österreich</p>
             </div>
           </div>
@@ -21,8 +21,8 @@ export function ImpressumPage() {
           <div>
             <h3 className="tracking-[0.1em] mb-4 uppercase">Kontakt</h3>
             <div className="text-white/70 space-y-2 uppercase">
-              <p>Telefon: +43 1 123-4567</p>
-              <p>E-Mail: hallo@cbrc.at</p>
+              <p>Telefon: +43 676 5209297</p>
+              <p>E-Mail: contact@coiffeurbyrabiacayli.at</p>
             </div>
           </div>
 
@@ -30,7 +30,7 @@ export function ImpressumPage() {
             <h3 className="tracking-[0.1em] mb-4 uppercase">Berufsrechtliche Regelungen</h3>
             <div className="text-white/70 space-y-2 uppercase">
               <p>Berufsbezeichnung: Friseurin</p>
-              <p>Zuständige Kammer: Wirtschaftskammer Wien</p>
+              <p>Zuständige Kammer: Wirtschaftskammer Vorarlberg</p>
               <p>Verliehen in: Österreich</p>
             </div>
           </div>

@@ -57,9 +57,9 @@ export function DatenschutzPage() {
             <h3 className="tracking-[0.1em] mb-4 uppercase">5. Kontakt</h3>
             <div className="text-white/70 space-y-2 uppercase">
               <p>Bei Fragen zum Datenschutz wenden Sie sich bitte an:</p>
-              <p>Salon Owner</p>
-              <p>E-Mail: hallo@cbrc.at</p>
-              <p>Telefon: +43 1 123-4567</p>
+              <p>Rabia Cayli</p>
+              <p>E-Mail: contact@coiffeurbyrabiacayli.at</p>
+              <p>Telefon: +43 676 5209297</p>
             </div>
           </div>
         </div>

@@ -8,7 +8,7 @@ import { headers } from "next/headers";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "CBRC - Coiffeur by Rabia Cayli",
+  title: "Coiffeur by Rabia Cayli",
   description: "Professional hair salon services",
 };
 
