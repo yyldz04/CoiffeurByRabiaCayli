@@ -1,18 +1,32 @@
+import { supabaseAdmin } from '../utils/supabase/client';
+
 async function checkMaintenanceMode(): Promise<{
   maintenance_mode: boolean;
   maintenance_message: string;
 }> {
   try {
-    // Use the internal API route
-    const response = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/settings/public`, {
-      cache: 'no-store' // Always get fresh data
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to fetch maintenance settings');
+    // Direct database query instead of HTTP request
+    const { data, error } = await supabaseAdmin
+      .from('settings')
+      .select('maintenance_mode, maintenance_message')
+      .single();
+
+    if (error) {
+      // If no settings exist, return defaults (no maintenance mode)
+      if (error.code === 'PGRST116') {
+        return {
+          maintenance_mode: false,
+          maintenance_message: "Wir sind bald wieder da!"
+        };
+      }
+      throw error;
     }
+
+    return {
+      maintenance_mode: data.maintenance_mode || false,
+      maintenance_message: data.maintenance_message || "Wir sind bald wieder da!"
+    };
     
-    return await response.json();
   } catch (error) {
     console.error('Error checking maintenance mode:', error);
     // Default to no maintenance mode on error
