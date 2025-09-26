@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import "./globals.css";
 import { ClientPageWrapper } from "./components/ClientPageWrapper";
 import { MaintenanceChecker } from "./components/MaintenanceChecker";
 import { headers } from "next/headers";
 
-const inter = Inter({ subsets: ["latin"] });
+const montserrat = Montserrat({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Coiffeur by Rabia Cayli",
@@ -25,7 +25,7 @@ export default async function RootLayout({
   
   return (
     <html lang="de">
-      <body className={inter.className}>
+      <body className={montserrat.className}>
         {isAdminRoute ? (
           children
         ) : (

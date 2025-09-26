@@ -28,7 +28,7 @@ interface SegmentPickerProps {
   onOptionChange: (option: string) => void;
   className?: string;
   variant?: 'admin' | 'calendar' | 'gender' | 'hair-length';
-  primaryOptions?: string[]; // For backward compatibility
+  primaryOptions?: string[];
 }
 
 export const SegmentPicker = memo(function SegmentPicker({ 
@@ -39,7 +39,6 @@ export const SegmentPicker = memo(function SegmentPicker({
   variant,
   primaryOptions = []
 }: SegmentPickerProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
 
   // Icon mapping for different variants - memoized to prevent recreation
   const getIconForOption = useCallback((option: string, variant?: string) => {
@@ -126,25 +125,14 @@ export const SegmentPicker = memo(function SegmentPicker({
   const allIconOnly = displayOptions.every(option => option.priority === 'secondary');
   
   return (
-    <div ref={containerRef} className={`flex border border-white/20 ${className}`}>
+    <div className={`flex border border-white/20 ${className}`}>
       {displayOptions.map((option) => {
-        const IconComponent = option.icon || getIconForOption(option.value, variant);
-        
         // Determine display mode based on priority
-        const shouldShowIcon = shouldShowIconsForOption(option) && IconComponent;
+        const shouldShowIcon = shouldShowIconsForOption(option) && option.icon;
         
         // Determine width class based on button type and context
         const getWidthClass = () => {
-          if (allIconOnly) {
-            // If all buttons are icon-only, let them have natural width
-            return 'flex-shrink-0';
-          } else if (shouldShowIcon) {
-            // Icon-only buttons take minimal width
-            return 'flex-shrink-0';
-          } else {
-            // Text buttons expand to fill remaining space
-            return 'flex-1';
-          }
+          return (allIconOnly || shouldShowIcon) ? 'flex-shrink-0' : 'flex-1';
         };
         
         return (
@@ -159,8 +147,8 @@ export const SegmentPicker = memo(function SegmentPicker({
             } ${option.priority === 'secondary' ? 'px-4' : ''}`}
             title={shouldShowIcon ? option.label : undefined}
           >
-            {shouldShowIcon && IconComponent ? (
-              <IconComponent size={16} />
+            {shouldShowIcon && option.icon ? (
+              <option.icon size={16} />
             ) : (
               option.label
             )}

@@ -70,7 +70,7 @@ export function Navigation({ currentPage, onPageChange }: NavigationProps) {
         <div 
           className={`cursor-pointer transition-all duration-300 ${
             isScrolled ? 'h-8 w-8' : 'h-16 w-16'
-          } scale-150`}
+          } scale-150 origin-left`}
           onClick={handleLogoClick}
           title="COIFFEUR BY RABIA CAYLI "
         >

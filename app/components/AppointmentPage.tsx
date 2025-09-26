@@ -178,6 +178,7 @@ export function AppointmentPage() {
                 setSelectedService(''); // Reset service selection when gender changes
               }}
               variant="gender"
+              primaryOptions={['DAMEN', 'HERREN']}
             />
           </div>
 
@@ -190,6 +191,7 @@ export function AppointmentPage() {
                 selectedOption={selectedHairLength}
                 onOptionChange={setSelectedHairLength}
                 variant="hair-length"
+                primaryOptions={['KURZ', 'MITTEL', 'LANG']}
               />
             </div>
           )}

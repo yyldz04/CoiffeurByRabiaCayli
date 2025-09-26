@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import "../globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+const montserrat = Montserrat({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Admin Login - CBRC",
@@ -17,7 +17,7 @@ export default function AdminLayout({
 }) {
   return (
     <html lang="de">
-      <body className={inter.className}>
+      <body className={montserrat.className}>
         <div className="min-h-screen bg-black text-white">
           {children}
         </div>
