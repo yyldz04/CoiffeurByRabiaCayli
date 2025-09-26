@@ -113,7 +113,7 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
 
         {/* Tab Content */}
         {activeTab === 'TERMINE' && <AppointmentsTab currentTime={currentTime} onFullscreenToggle={setIsFullscreen} />}
-        {activeTab === 'KALENDER' && <Calendar onBack={() => setActiveTab('TERMINE')} onFullscreenToggle={setIsFullscreen} />}
+        {activeTab === 'KALENDER' && <Calendar onFullscreenToggle={setIsFullscreen} />}
         {activeTab === 'SERVICES' && <ServicesTab />}
         {activeTab === 'KATEGORIEN' && <CategoriesTab />}
         {activeTab === 'EINSTELLUNGEN' && <SettingsTab />}

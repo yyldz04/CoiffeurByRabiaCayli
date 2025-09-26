@@ -31,7 +31,7 @@ export function StatusBadge({ status, size = "xs", className }: StatusBadgeProps
 
   return (
     <Button
-      variant={getStatusVariant(status) as any}
+      variant={getStatusVariant(status) as "default" | "destructive" | "outline" | "secondary" | "ghost" | "link"}
       size={size}
       className={`pointer-events-none ${className || ''}`}
       disabled

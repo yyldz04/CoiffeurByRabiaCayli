@@ -12,11 +12,10 @@ import { Button } from './ui/button';
 type CalendarView = 'day' | 'week' | 'month';
 
 interface CalendarProps {
-  onBack: () => void;
   onFullscreenToggle: (isFullscreen: boolean) => void;
 }
 
-export function Calendar({ onBack, onFullscreenToggle }: CalendarProps) {
+export function Calendar({ onFullscreenToggle }: CalendarProps) {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [busySlots, setBusySlots] = useState<BusySlot[]>([]);
   const [loading, setLoading] = useState(true);

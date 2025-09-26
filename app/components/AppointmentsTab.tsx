@@ -244,7 +244,6 @@ export function AppointmentsTab({ currentTime, onFullscreenToggle }: Appointment
                   <AppointmentCard
                     key={appointment.id}
                     appointment={appointment}
-                    currentTime={currentTime}
                     isExpanded={expandedRows.has(appointment.id)}
                     isAutoExpanded={shouldAutoExpand(appointment)}
                     onToggle={toggleRow}
@@ -287,7 +286,6 @@ export function AppointmentsTab({ currentTime, onFullscreenToggle }: Appointment
                   <AppointmentCard
                     key={appointment.id}
                     appointment={appointment}
-                    currentTime={currentTime}
                     isExpanded={expandedRows.has(appointment.id)}
                     isAutoExpanded={shouldAutoExpand(appointment)}
                     onToggle={toggleRow}

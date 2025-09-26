@@ -553,7 +553,7 @@ export function ServicesTab() {
           {deleteDialog.serviceGroup && (
             <div className="space-y-4">
               <p className="text-white/80">
-                Möchten Sie die Dienstleistungsgruppe <strong>"{deleteDialog.serviceGroup.title}"</strong> wirklich löschen?
+                Möchten Sie die Dienstleistungsgruppe <strong>&quot;{deleteDialog.serviceGroup.title}&quot;</strong> wirklich löschen?
               </p>
               <p className="text-sm text-white/60">
                 Diese Aktion kann nicht rückgängig gemacht werden. Alle zugehörigen Dienstleistungen werden ebenfalls gelöscht.

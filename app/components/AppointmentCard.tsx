@@ -8,7 +8,6 @@ import { Appointment } from '../utils/supabase/client';
 
 interface AppointmentCardProps {
   appointment: Appointment;
-  currentTime: Date;
   isExpanded: boolean;
   isAutoExpanded: boolean;
   onToggle: (appointmentId: string) => void;
@@ -18,7 +17,6 @@ interface AppointmentCardProps {
 
 export function AppointmentCard({
   appointment,
-  currentTime,
   isExpanded,
   isAutoExpanded,
   onToggle,

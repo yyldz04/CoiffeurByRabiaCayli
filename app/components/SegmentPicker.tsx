@@ -84,7 +84,7 @@ export const SegmentPicker = memo(function SegmentPicker({
       }
       return option;
     });
-  }, [options, variant, primaryOptions]);
+  }, [options, variant, primaryOptions, getIconForOption]);
 
   // Filter options for mobile - only show primary options
   const mobileOptions = useMemo(() => {
