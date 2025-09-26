@@ -1,19 +1,22 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, Clock, User, CreditCard, RefreshCw, ArrowLeft, CalendarPlus } from "lucide-react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { ChevronLeft, ChevronRight, Clock, User, CreditCard, RefreshCw, CalendarPlus, Maximize2, Minimize2 } from "lucide-react";
 import { appointmentService, busySlotService, Appointment, BusySlot } from '../utils/supabase/client';
 import { PaymentDialog } from './PaymentDialog';
 import { SegmentPicker } from './SegmentPicker';
 import { BusySlotDialog } from './BusySlotDialog';
+import { TabHeader } from './TabHeader';
+import { Button } from './ui/button';
 
 type CalendarView = 'day' | 'week' | 'month';
 
 interface CalendarProps {
   onBack: () => void;
+  onFullscreenToggle: (isFullscreen: boolean) => void;
 }
 
-export function Calendar({ onBack }: CalendarProps) {
+export function Calendar({ onBack, onFullscreenToggle }: CalendarProps) {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [busySlots, setBusySlots] = useState<BusySlot[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,6 +34,23 @@ export function Calendar({ onBack }: CalendarProps) {
   }>({ isOpen: false });
   const [expandedAppointments, setExpandedAppointments] = useState<Set<string>>(new Set());
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const handleFullscreenToggle = () => {
+    const newFullscreenState = !isFullscreen;
+    setIsFullscreen(newFullscreenState);
+    onFullscreenToggle(newFullscreenState);
+  };
+
+  // Memoized callback for SegmentPicker to prevent infinite re-renders
+  const handleViewChange = useCallback((option: string) => {
+    if (option === 'Tag') setView('day');
+    else if (option === 'Woche') setView('week');
+    else if (option === 'Monat') setView('month');
+  }, []);
+
+  // Memoized options to prevent infinite re-renders
+  const calendarOptions = useMemo(() => ['Tag', 'Woche', 'Monat'], []);
 
   // Fetch appointments and busy slots from backend
   const fetchData = async () => {
@@ -741,51 +761,84 @@ export function Calendar({ onBack }: CalendarProps) {
   }
 
   return (
-    <div className="min-h-screen bg-black">
-      {/* Header with Back Button */}
-      <div className="flex items-center justify-between p-6 border-b border-white/20">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={onBack}
-            className="bg-transparent border border-white/20 text-white hover:bg-white hover:text-black p-3 transition-colors"
-            title="Zurück"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <h1 className="text-3xl tracking-[0.2em] uppercase">Kalender</h1>
-        </div>
-        
-        <div className="flex items-center gap-3">
-          <button 
-            onClick={() => setBusySlotDialog({ isOpen: true, selectedDate: currentDate })}
-            className="bg-transparent border border-white/20 text-white hover:bg-white hover:text-black p-3 transition-colors"
-            title="Zeitblock reservieren"
-          >
-            <CalendarPlus className="w-5 h-5" />
-          </button>
-          <button 
-            onClick={fetchData}
-            className="bg-transparent border border-white/20 text-white hover:bg-white hover:text-black p-3 transition-colors"
-            title="Aktualisieren"
-          >
-            <RefreshCw className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
+    <div className="bg-black">
+      {/* Header */}
+      <TabHeader
+        title="Kalender"
+        subtitle={formatDateDisplay(currentDate)}
+      >
+        <Button 
+          variant="primaryOutline"
+          size="dashboard"
+          icon={<CalendarPlus />}
+          onClick={() => setBusySlotDialog({ isOpen: true, selectedDate: currentDate })}
+          className="hidden sm:flex"
+        >
+          Zeitblock reservieren
+        </Button>
+
+        <Button 
+          variant="primaryOutline"
+          size="icon"
+          iconOnly
+          icon={<CalendarPlus />}
+          onClick={() => setBusySlotDialog({ isOpen: true, selectedDate: currentDate })}
+          title="Zeitblock reservieren"
+          className="sm:hidden"
+        />
+
+        <Button 
+          variant="primaryOutline"
+          size="dashboard"
+          icon={<RefreshCw />}
+          onClick={fetchData}
+          className="hidden sm:flex"
+        >
+          Aktualisieren
+        </Button>
+
+        <Button 
+          variant="primaryOutline"
+          size="icon"
+          iconOnly
+          icon={<RefreshCw />}
+          onClick={fetchData}
+          title="Aktualisieren"
+          className="sm:hidden"
+        />
+
+        <Button 
+          variant="primaryOutline"
+          size="dashboard"
+          icon={isFullscreen ? <Minimize2 /> : <Maximize2 />}
+          onClick={handleFullscreenToggle}
+          className="hidden sm:flex"
+        >
+          {isFullscreen ? 'Verkleinern' : 'Vollbild'}
+        </Button>
+
+        <Button 
+          variant="primaryOutline"
+          size="icon"
+          iconOnly
+          icon={isFullscreen ? <Minimize2 /> : <Maximize2 />}
+          onClick={handleFullscreenToggle}
+          title={isFullscreen ? 'Verkleinern' : 'Vollbild'}
+          className="sm:hidden"
+        />
+      </TabHeader>
 
       {/* Content */}
-      <div className="p-6 space-y-6">
+      <div className="space-y-6">
         {/* View Toggle using SegmentPicker */}
         <div className="w-full">
           <SegmentPicker
-            options={['Tag', 'Woche', 'Monat']}
+            options={calendarOptions}
             selectedOption={view === 'day' ? 'Tag' : view === 'week' ? 'Woche' : 'Monat'}
-            onOptionChange={(option) => {
-              if (option === 'Tag') setView('day');
-              else if (option === 'Woche') setView('week');
-              else if (option === 'Monat') setView('month');
-            }}
+            onOptionChange={handleViewChange}
             className="w-full"
+            variant="calendar"
+            primaryOptions={calendarOptions}
           />
         </div>
 

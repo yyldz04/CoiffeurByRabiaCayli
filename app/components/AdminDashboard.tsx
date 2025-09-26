@@ -1,10 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { AppointmentsTab } from "./AppointmentsTab";
 import { ServicesTab } from "./ServicesTab";
 import { CategoriesTab } from "./CategoriesTab";
 import { SettingsTab } from "./SettingsTab";
+import { UIShowcaseTab } from "./UIShowcaseTab";
+import { Calendar } from "./Calendar";
 import { SegmentPicker } from "./SegmentPicker";
 import { LogOut } from "lucide-react";
 
@@ -15,7 +17,7 @@ interface AdminDashboardProps {
 export function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [activeTab, setActiveTab] = useState('TERMINE');
-  const [showCalendar, setShowCalendar] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Update current time every minute
   useEffect(() => {
@@ -31,10 +33,19 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
     onLogout();
   };
 
+  // Memoized callback for SegmentPicker to prevent infinite re-renders
+  const handleTabChange = useCallback((tab: string) => {
+    setActiveTab(tab);
+  }, []);
+
+  // Memoized options and primary options to prevent infinite re-renders
+  const adminOptions = useMemo(() => ['TERMINE', 'KALENDER', 'SERVICES', 'KATEGORIEN', 'EINSTELLUNGEN', 'UI COMPONENTS'], []);
+  const primaryOptions = useMemo(() => ['TERMINE', 'KALENDER'], []);
+
   return (
     <div className="min-h-screen bg-black text-white">
-      {/* Header - Only show when calendar is not active */}
-      {!showCalendar && (
+      {/* Header - Only show when not in fullscreen */}
+      {!isFullscreen && (
         <div className="border-b border-white/20 py-6 transition-all duration-300 responsive-padding">
           <div className="max-w-6xl mx-auto flex justify-between items-center">
             <div>
@@ -44,7 +55,7 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
               </p>
             </div>
             <div className="flex items-center gap-6">
-              <div className="text-right">
+              <div className="text-right hidden sm:block">
                 <p className="text-white/60 uppercase tracking-[0.05em]">Aktuelle Zeit</p>
                 <p className="tracking-[0.05em] uppercase">
                   {currentTime.toLocaleString('de-AT', {
@@ -54,6 +65,16 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
                     year: 'numeric',
                     hour: '2-digit',
                     minute: '2-digit'
+                  })}
+                </p>
+              </div>
+              <div className="text-right sm:hidden">
+                <p className="tracking-[0.05em] uppercase">
+                  {currentTime.toLocaleDateString('de-AT', {
+                    timeZone: 'Europe/Vienna',
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric'
                   })}
                 </p>
               </div>
@@ -76,23 +97,27 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
       )}
 
       {/* Dashboard Content */}
-      <div className={showCalendar ? "" : "max-w-6xl mx-auto py-6 transition-all duration-300 responsive-padding"}>
-        {/* Tab Navigation using SegmentPicker - Only show when calendar is not active */}
-        {!showCalendar && (
+      <div className="max-w-6xl mx-auto py-6 transition-all duration-300 responsive-padding">
+        {/* Tab Navigation using SegmentPicker - Only show when not in fullscreen */}
+        {!isFullscreen && (
           <div className="mb-8">
             <SegmentPicker
-              options={['TERMINE', 'SERVICES', 'KATEGORIEN', 'EINSTELLUNGEN']}
+              options={adminOptions}
               selectedOption={activeTab}
-              onOptionChange={setActiveTab}
+              onOptionChange={handleTabChange}
+              variant="admin"
+              primaryOptions={primaryOptions}
             />
           </div>
         )}
 
         {/* Tab Content */}
-        {activeTab === 'TERMINE' && <AppointmentsTab currentTime={currentTime} onCalendarToggle={setShowCalendar} />}
+        {activeTab === 'TERMINE' && <AppointmentsTab currentTime={currentTime} onFullscreenToggle={setIsFullscreen} />}
+        {activeTab === 'KALENDER' && <Calendar onBack={() => setActiveTab('TERMINE')} onFullscreenToggle={setIsFullscreen} />}
         {activeTab === 'SERVICES' && <ServicesTab />}
         {activeTab === 'KATEGORIEN' && <CategoriesTab />}
         {activeTab === 'EINSTELLUNGEN' && <SettingsTab />}
+        {activeTab === 'UI COMPONENTS' && <UIShowcaseTab />}
       </div>
     </div>
   );

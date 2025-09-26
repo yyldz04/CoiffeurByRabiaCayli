@@ -4,6 +4,7 @@
 
 @theme {
   --font-family-sans: 'Montserrat', sans-serif;
+  --font-sans: 'Montserrat', sans-serif;
 }
 
 @custom-variant dark (&:is(.dark *));
@@ -252,4 +253,9 @@ html {
     padding-left: 0;
     padding-right: 0;
   }
+}
+
+/* Ensure buttons use Montserrat font */
+button, [data-slot="button"] {
+  font-family: 'Montserrat', sans-serif !important;
 }

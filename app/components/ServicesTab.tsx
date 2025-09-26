@@ -3,7 +3,9 @@ import { Plus, Edit2, Trash2, ChevronDown, ChevronRight, Upload, Settings, Searc
 import { serviceService, ServiceGroup, Service, categoryService, Category } from "../utils/supabase/client";
 import { AddServiceGroup } from "./AddServiceGroup";
 import { EditServiceGroup } from "./EditServiceGroup";
-import { DeleteServiceGroup } from "./DeleteServiceGroup";
+import { Button } from "./ui/button";
+import { TabHeader } from "./TabHeader";
+import { Modal } from "./ui/modal";
 import * as yaml from 'js-yaml';
 import { PaymentDialog } from './PaymentDialog';
 
@@ -13,7 +15,6 @@ export function ServicesTab() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingServiceGroup, setEditingServiceGroup] = useState<(ServiceGroup & { services: Service[] }) | null>(null);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -26,6 +27,10 @@ export function ServicesTab() {
     service: Service | null;
     serviceGroup: ServiceGroup | null;
   }>({ isOpen: false, service: null, serviceGroup: null });
+  const [deleteDialog, setDeleteDialog] = useState<{
+    isOpen: boolean;
+    serviceGroup: (ServiceGroup & { services: Service[] }) | null;
+  }>({ isOpen: false, serviceGroup: null });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Load service groups and categories from Supabase
@@ -230,6 +235,21 @@ export function ServicesTab() {
     URL.revokeObjectURL(url);
   };
 
+  const handleDeleteServiceGroup = async (serviceGroup: ServiceGroup & { services: Service[] }) => {
+    try {
+      await serviceService.deleteServiceGroup(serviceGroup.id);
+      await loadServiceGroups();
+      setDeleteDialog({ isOpen: false, serviceGroup: null });
+    } catch (error) {
+      console.error('Error deleting service group:', error);
+      setError(error instanceof Error ? error.message : 'Fehler beim Löschen der Dienstleistungsgruppe');
+    }
+  };
+
+  const openDeleteDialog = (serviceGroup: ServiceGroup & { services: Service[] }) => {
+    setDeleteDialog({ isOpen: true, serviceGroup });
+  };
+
   if (isAddDialogOpen) {
     return (
       <AddServiceGroup
@@ -255,105 +275,78 @@ export function ServicesTab() {
     );
   }
 
-  if (isDeleteDialogOpen) {
-    return (
-      <DeleteServiceGroup
-        serviceGroups={serviceGroups}
-        onSuccess={() => {
-          setIsDeleteDialogOpen(false);
-          loadServiceGroups();
-        }}
-        onCancel={() => setIsDeleteDialogOpen(false)}
-      />
-    );
-  }
-
   return (
     <div className="min-h-screen bg-black text-white">
       <div className="space-y-6">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h1 className="text-3xl tracking-[0.2em] mb-2 uppercase">Dienstleistungen</h1>
-              <p className="text-white/60 uppercase">Verwalten Sie Ihre Dienstleistungen</p>
-            </div>
-          <div className="flex gap-4">
-            {/* Dev Tools Toggle - Subtle */}
-            <button
-              onClick={() => setShowDevTools(!showDevTools)}
-              className="text-white/30 hover:text-white/60 transition-colors p-2"
-              title="Entwicklertools"
-            >
-              <Settings className="w-4 h-4" />
-            </button>
-            
-            <button
-              onClick={() => setIsAddDialogOpen(true)}
-              className="bg-transparent border border-white/20 px-8 py-3 tracking-[0.1em] hover:bg-white hover:text-black transition-colors uppercase"
-              >
-              <Plus className="w-4 h-4 inline mr-2" />
-              Hinzufügen
-            </button>
-            <button
-              onClick={() => setIsDeleteDialogOpen(true)}
-              className="bg-transparent border border-white/20 px-8 py-3 tracking-[0.1em] hover:bg-white hover:text-black transition-colors uppercase"
-            >
-              <Trash2 className="w-4 h-4 inline mr-2" />
-              Löschen
-            </button>
-          </div>
+        <TabHeader
+          title="Dienstleistungen"
+          subtitle="Verwalten Sie Ihre Dienstleistungen"
+        >
+          {/* Dev Tools Toggle - Subtle */}
+          <Button
+            variant="devTools"
+            size="icon"
+            iconOnly
+            icon={<Settings className="w-4 h-4" />}
+            onClick={() => setShowDevTools(!showDevTools)}
+            title="Entwicklertools"
+          />
+          
+          <Button
+            variant="primaryOutline"
+            size="dashboard"
+            icon={<Plus className="w-4 h-4" />}
+            onClick={() => setIsAddDialogOpen(true)}
+          >
+            Hinzufügen
+          </Button>
+        </TabHeader>
+
+        {/* Search and Filter Section */}
+        <div className="space-y-4">
+          {/* Search Bar */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/40 w-4 h-4" />
+            <input
+              type="text"
+              placeholder="Dienstleistungen durchsuchen..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full bg-transparent border border-white/20 px-10 py-3 text-white placeholder-white/40 focus:border-white/40 focus:outline-none uppercase tracking-[0.05em]"
+            />
           </div>
 
-          {/* Search and Filter Section */}
-          <div className="space-y-4">
-            {/* Search Bar */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/40 w-4 h-4" />
-              <input
-                type="text"
-                placeholder="Dienstleistungen durchsuchen..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-transparent border border-white/20 px-10 py-3 text-white placeholder-white/40 focus:border-white/40 focus:outline-none uppercase tracking-[0.05em]"
-              />
-            </div>
-
-            {/* Category Filter Tabs */}
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => setSelectedCategory("all")}
-                className={`px-4 py-2 text-sm uppercase tracking-[0.05em] transition-colors border ${
-                  selectedCategory === "all"
-                    ? "bg-white text-black border-white"
-                    : "bg-transparent border-white/20 text-white hover:border-white/40"
-                }`}
+          {/* Category Filter Tabs */}
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant={selectedCategory === "all" ? "filterActive" : "filterInactive"}
+              size="sm"
+              onClick={() => setSelectedCategory("all")}
+            >
+              Alle
+            </Button>
+            {categories.map((category) => (
+              <Button
+                key={category.id}
+                variant={selectedCategory === category.name ? "filterActive" : "filterInactive"}
+                size="sm"
+                onClick={() => setSelectedCategory(category.name)}
+                className={selectedCategory === category.name ? getCategoryActiveColor(category.name) : getCategoryColor(category.name)}
               >
-                Alle
-              </button>
-              {categories.map((category) => (
-                <button
-                  key={category.id}
-                  onClick={() => setSelectedCategory(category.name)}
-                  className={`px-4 py-2 text-sm uppercase tracking-[0.05em] transition-colors border ${
-                    selectedCategory === category.name
-                      ? getCategoryActiveColor(category.name)
-                      : getCategoryColor(category.name)
-                  }`}
-                >
-                  {category.name}
-                </button>
-              ))}
-            </div>
+                {category.name}
+              </Button>
+            ))}
           </div>
         </div>
 
-        {/* Dev Tools Panel */}
-        {showDevTools && (
-          <div className="mb-6 p-4 bg-white/5 border border-white/20">
-            <h3 className="text-lg tracking-[0.05em] uppercase mb-3 text-white/80">
-              Entwicklertools
-            </h3>
+        {/* Dev Tools Modal */}
+        <Modal
+          isOpen={showDevTools}
+          onClose={() => setShowDevTools(false)}
+          title="Entwicklertools"
+        >
+          <div className="space-y-4">
             <div className="flex gap-4">
               <div>
                 <input
@@ -363,27 +356,30 @@ export function ServicesTab() {
                   onChange={handleFileUpload}
                   className="hidden"
                 />
-                <button
-                  onClick={() => fileInputRef.current?.click()}
+                <Button
+                  variant="import"
+                  size="sm"
+                  icon={<Upload className="w-4 h-4" />}
+                  loading={isImporting}
                   disabled={isImporting}
-                  className="bg-blue-600 text-white border border-blue-600 px-4 py-2 tracking-[0.05em] hover:bg-blue-700 transition-colors uppercase disabled:opacity-50 text-sm"
+                  onClick={() => fileInputRef.current?.click()}
                 >
-                  <Upload className="w-4 h-4 inline mr-2" />
                   {isImporting ? "Importiere..." : "YAML Import"}
-                </button>
+                </Button>
               </div>
-              <button
+              <Button
+                variant="export"
+                size="sm"
                 onClick={exportServices}
-                className="bg-green-600 text-white border border-green-600 px-4 py-2 tracking-[0.05em] hover:bg-green-700 transition-colors uppercase text-sm"
               >
                 YAML Export
-              </button>
+              </Button>
             </div>
-            <p className="text-xs text-white/40 mt-2">
+            <p className="text-xs text-white/40">
               YAML Format: Array von ServiceGroups. order_index ist optional (wird automatisch vergeben wenn nicht gesetzt)
             </p>
           </div>
-        )}
+        </Modal>
 
         {error && (
           <div className="border border-red-500/30 bg-red-500/5 p-4 text-center mb-6">
@@ -401,12 +397,13 @@ export function ServicesTab() {
             <p className="text-white/60 tracking-[0.05em] uppercase mb-4">
               Keine Dienstleistungen gefunden
             </p>
-            <button
+            <Button
+              variant="primary"
+              size="dashboardSm"
               onClick={() => setIsAddDialogOpen(true)}
-              className="bg-white text-black border border-white px-6 py-2 tracking-[0.1em] hover:bg-white/90 transition-colors uppercase"
             >
               Erste Dienstleistung hinzufügen
-            </button>
+            </Button>
           </div>
         ) : (
           <div className="space-y-4">
@@ -416,16 +413,13 @@ export function ServicesTab() {
                 <div className="p-4 bg-white/5">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
-                      <button
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        iconOnly
+                        icon={expandedGroups.has(group.id) ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
                         onClick={() => toggleGroupExpansion(group.id)}
-                        className="text-white/60 hover:text-white transition-colors"
-                      >
-                        {expandedGroups.has(group.id) ? (
-                          <ChevronDown className="w-5 h-5" />
-                        ) : (
-                          <ChevronRight className="w-5 h-5" />
-                        )}
-                      </button>
+                      />
                       <div>
                         <h3 className="text-xl tracking-[0.05em] uppercase">{group.title}</h3>
                         <p className="text-white/60 text-sm">{group.description}</p>
@@ -443,12 +437,20 @@ export function ServicesTab() {
                       <span className="text-sm text-white/60">
                         {group.services.length} Variante{group.services.length !== 1 ? 'n' : ''}
                       </span>
-                      <button
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        iconOnly
+                        icon={<Edit2 className="w-4 h-4" />}
                         onClick={() => setEditingServiceGroup(group)}
-                        className="p-2 text-white/60 hover:text-white transition-colors"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </button>
+                      />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        iconOnly
+                        icon={<Trash2 className="w-4 h-4" />}
+                        onClick={() => openDeleteDialog(group)}
+                      />
                     </div>
                   </div>
                 </div>
@@ -471,13 +473,14 @@ export function ServicesTab() {
                               }`}>
                                 {service.is_active ? 'Aktiv' : 'Inaktiv'}
                               </span>
-                              <button
+                              <Button
+                                variant="payment"
+                                size="iconSm"
+                                iconOnly
+                                icon={<Banknote className="w-4 h-4" />}
                                 onClick={() => setPaymentDialog({ isOpen: true, service, serviceGroup: group })}
-                                className="p-1 text-yellow-400 hover:text-yellow-300 transition-colors"
                                 title="Zahlung"
-                              >
-                                <Banknote className="w-4 h-4" />
-                              </button>
+                              />
                             </div>
                           </div>
                           <div className="space-y-1 text-sm">
@@ -540,6 +543,40 @@ export function ServicesTab() {
           serviceName={paymentDialog.serviceGroup?.title || 'N/A'}
           customerName="Direkte Zahlung"
         />
+
+        {/* Delete Confirmation Modal */}
+        <Modal
+          isOpen={deleteDialog.isOpen}
+          onClose={() => setDeleteDialog({ isOpen: false, serviceGroup: null })}
+          title="Dienstleistungsgruppe löschen"
+        >
+          {deleteDialog.serviceGroup && (
+            <div className="space-y-4">
+              <p className="text-white/80">
+                Möchten Sie die Dienstleistungsgruppe <strong>"{deleteDialog.serviceGroup.title}"</strong> wirklich löschen?
+              </p>
+              <p className="text-sm text-white/60">
+                Diese Aktion kann nicht rückgängig gemacht werden. Alle zugehörigen Dienstleistungen werden ebenfalls gelöscht.
+              </p>
+              <div className="flex gap-3 pt-4">
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => handleDeleteServiceGroup(deleteDialog.serviceGroup!)}
+                >
+                  Löschen
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setDeleteDialog({ isOpen: false, serviceGroup: null })}
+                >
+                  Abbrechen
+                </Button>
+              </div>
+            </div>
+          )}
+        </Modal>
       </div>
     </div>
   );

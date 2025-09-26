@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { Save, RefreshCw, AlertTriangle } from "lucide-react";
 import { Toggle } from "./ui/toggle";
+import { TabHeader } from "./TabHeader";
+import { Button } from "./ui/button";
 
 interface SettingsData {
   maintenance_mode: boolean;
@@ -96,24 +98,21 @@ export function SettingsTab() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl tracking-[0.2em] mb-2 uppercase flex items-center gap-3">
-            Einstellungen
-          </h1>
-          <p className="text-white/60 uppercase">
-            Website-Konfiguration und Wartungsmodus
-          </p>
-        </div>
-        <button 
+      <TabHeader
+        title="Einstellungen"
+        subtitle="Website-Konfiguration und Wartungsmodus"
+      >
+        <Button 
+          variant="primaryOutline"
+          size="dashboard"
+          icon={<RefreshCw />}
           onClick={loadSettings}
-          disabled={isLoading || isSaving}
-          className="bg-transparent border border-white/20 text-white hover:bg-white hover:text-black px-6 py-3 tracking-[0.05em] transition-colors uppercase flex items-center gap-2 disabled:opacity-50"
+          loading={isLoading}
+          disabled={isSaving}
         >
-          <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
           Aktualisieren
-        </button>
-      </div>
+        </Button>
+      </TabHeader>
 
       {/* Error Message */}
       {error && (

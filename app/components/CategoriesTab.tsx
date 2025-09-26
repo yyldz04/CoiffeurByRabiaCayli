@@ -1,9 +1,12 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Plus, Edit2, Trash2, Upload } from "lucide-react";
+import { Plus, Edit2, Trash2, Upload, Settings } from "lucide-react";
 import { categoryService, Category } from "../utils/supabase/client";
+import { TabHeader } from "./TabHeader";
 import * as yaml from 'js-yaml';
+import { Button } from "./ui/button";
+import { Modal } from "./ui/modal";
 
 export function CategoriesTab() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -14,6 +17,7 @@ export function CategoriesTab() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
   const [isImporting, setIsImporting] = useState(false);
+  const [showDevTools, setShowDevTools] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Load categories from Supabase
@@ -142,6 +146,24 @@ export function CategoriesTab() {
     }
   };
 
+  const exportCategories = () => {
+    const exportData = categories.map(category => ({
+      name: category.name,
+      description: category.description,
+      order_index: category.order_index
+    }));
+
+    const blob = new Blob([yaml.dump(exportData, { indent: 2 })], { type: 'application/x-yaml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `cbrc-categories-${new Date().toISOString().split('T')[0]}.yaml`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   if (isLoading) {
     return (
       <div className="border border-white/20 p-8 text-center">
@@ -153,36 +175,69 @@ export function CategoriesTab() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl tracking-[0.2em] mb-2 uppercase">Kategorien</h1>
-          <p className="text-white/60 uppercase">Verwalten Sie Ihre Service-Kategorien</p>
+      <TabHeader
+        title="Kategorien"
+        subtitle="Verwalten Sie Ihre Service-Kategorien"
+      >
+        <Button
+          variant="devTools"
+          size="icon"
+          iconOnly
+          icon={<Settings className="w-4 h-4" />}
+          onClick={() => setShowDevTools(true)}
+          title="Entwicklertools"
+        />
+
+        <Button
+          variant="primaryOutline"
+          size="dashboard"
+          icon={<Plus className="w-4 h-4" />}
+          onClick={() => setIsAddDialogOpen(true)}
+        >
+          Hinzufügen
+        </Button>
+      </TabHeader>
+
+      {/* Dev Tools Modal */}
+      <Modal
+        isOpen={showDevTools}
+        onClose={() => setShowDevTools(false)}
+        title="Entwicklertools"
+      >
+        <div className="space-y-4">
+          <div className="flex gap-4">
+            <div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".yaml,.yml"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+              <Button
+                variant="import"
+                size="sm"
+                icon={<Upload className="w-4 h-4" />}
+                loading={isImporting}
+                disabled={isImporting}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {isImporting ? "Importiere..." : "YAML Import"}
+              </Button>
+            </div>
+            <Button
+              variant="export"
+              size="sm"
+              onClick={exportCategories}
+            >
+              YAML Export
+            </Button>
+          </div>
+          <p className="text-xs text-white/40">
+            YAML Format: Array von Kategorien. order_index ist optional (wird automatisch vergeben wenn nicht gesetzt)
+          </p>
         </div>
-        <div className="flex gap-3">
-          <button
-            onClick={() => setIsAddDialogOpen(true)}
-            className="bg-transparent border border-white/20 px-6 py-3 tracking-[0.05em] hover:bg-white hover:text-black transition-colors uppercase flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            Neue Kategorie
-          </button>
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isImporting}
-            className="bg-transparent border border-white/20 px-6 py-3 tracking-[0.05em] hover:bg-white hover:text-black transition-colors uppercase flex items-center gap-2 disabled:opacity-50"
-          >
-            <Upload className="w-4 h-4" />
-            {isImporting ? 'Importiere...' : 'Importieren'}
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".yaml,.yml"
-            onChange={handleFileUpload}
-            className="hidden"
-          />
-        </div>
-      </div>
+      </Modal>
 
       {/* Error Message */}
       {error && (
