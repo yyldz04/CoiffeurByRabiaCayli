@@ -5,10 +5,8 @@ import { Calendar, Clock, X, Save, Trash2 } from "lucide-react";
 
 interface BusySlot {
   id?: string;
-  busy_date: string;
-  end_date?: string;
-  start_time: string;
-  end_time: string;
+  start_datetime: string;  // ISO timestamp string
+  end_datetime: string;    // ISO timestamp string
   title: string;
   description?: string;
 }
@@ -30,14 +28,65 @@ export function BusySlotDialog({
   onDelete,
   existingSlot
 }: BusySlotDialogProps) {
-  const [formData, setFormData] = useState<Omit<BusySlot, 'id'>>({
-    busy_date: existingSlot?.busy_date || selectedDate?.toISOString().split('T')[0] || '',
-    end_date: existingSlot?.end_date || '',
-    start_time: existingSlot?.start_time || '',
-    end_time: existingSlot?.end_time || '',
-    title: existingSlot?.title || 'Besetzt',
-    description: existingSlot?.description || ''
-  });
+  // Helper function to format date as YYYY-MM-DD in local timezone
+  const formatDateLocal = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  // Helper function to format time as HH:MM
+  const formatTimeLocal = (date: Date) => {
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${hours}:${minutes}`;
+  };
+
+  // Initialize form data from existing slot or selected date
+  const initializeFormData = (): {
+    start_date: string;
+    end_date: string;
+    start_time: string;
+    end_time: string;
+    title: string;
+    description: string;
+  } => {
+    if (existingSlot) {
+      const startDate = new Date(existingSlot.start_datetime);
+      const endDate = new Date(existingSlot.end_datetime);
+      
+      return {
+        start_date: formatDateLocal(startDate),
+        end_date: formatDateLocal(endDate),
+        start_time: formatTimeLocal(startDate),
+        end_time: formatTimeLocal(endDate),
+        title: existingSlot.title,
+        description: existingSlot.description || ''
+      };
+    } else if (selectedDate) {
+      return {
+        start_date: formatDateLocal(selectedDate),
+        end_date: formatDateLocal(selectedDate),
+        start_time: '09:00',
+        end_time: '17:00',
+        title: 'Besetzt',
+        description: ''
+      };
+    } else {
+      const today = new Date();
+      return {
+        start_date: formatDateLocal(today),
+        end_date: formatDateLocal(today),
+        start_time: '09:00',
+        end_time: '17:00',
+        title: 'Besetzt',
+        description: ''
+      };
+    }
+  };
+
+  const [formData, setFormData] = useState(initializeFormData());
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -48,16 +97,29 @@ export function BusySlotDialog({
 
     try {
       // Validate time range
-      if (formData.start_time >= formData.end_time) {
-        throw new Error('Endzeit muss nach der Startzeit liegen');
+      if (formData.start_date === formData.end_date) {
+        if (formData.start_time >= formData.end_time) {
+          throw new Error('Endzeit muss nach der Startzeit liegen');
+        }
       }
 
       // Validate date range
-      if (formData.end_date && formData.end_date < formData.busy_date) {
+      if (formData.end_date < formData.start_date) {
         throw new Error('Enddatum muss nach dem Startdatum liegen');
       }
 
-      await onSave(formData);
+      // Convert form data to TIMESTAMP format
+      const startDateTime = `${formData.start_date}T${formData.start_time}:00`;
+      const endDateTime = `${formData.end_date}T${formData.end_time}:00`;
+
+      const slotData: Omit<BusySlot, 'id'> = {
+        start_datetime: startDateTime,
+        end_datetime: endDateTime,
+        title: formData.title,
+        description: formData.description || undefined
+      };
+
+      await onSave(slotData);
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Fehler beim Speichern');
@@ -83,7 +145,7 @@ export function BusySlotDialog({
   };
 
   // Auto-year functionality for date inputs
-  const handleDateInputChange = (field: 'busy_date' | 'end_date', value: string) => {
+  const handleDateInputChange = (field: 'start_date' | 'end_date', value: string) => {
     // If user enters only day/month (DD-MM or DD.MM), append current year
     const currentYear = new Date().getFullYear();
     let processedValue = value;
@@ -99,8 +161,8 @@ export function BusySlotDialog({
     setFormData(prev => ({ ...prev, [field]: processedValue }));
   };
 
-  const handleInputChange = (field: keyof Omit<BusySlot, 'id'>, value: string) => {
-    if (field === 'busy_date' || field === 'end_date') {
+  const handleInputChange = (field: keyof typeof formData, value: string) => {
+    if (field === 'start_date' || field === 'end_date') {
       handleDateInputChange(field, value);
     } else {
       setFormData(prev => ({ ...prev, [field]: value }));
@@ -144,8 +206,8 @@ export function BusySlotDialog({
                 </label>
                 <input
                   type="date"
-                  value={formData.busy_date}
-                  onChange={(e) => handleInputChange('busy_date', e.target.value)}
+                  value={formData.start_date}
+                  onChange={(e) => handleInputChange('start_date', e.target.value)}
                   className="w-full bg-transparent border border-white/20 text-white px-3 py-2 focus:border-white/40 focus:outline-none"
                   required
                 />
@@ -155,17 +217,17 @@ export function BusySlotDialog({
               </div>
               <div>
                 <label className="block text-sm tracking-[0.05em] uppercase text-white/70 mb-2">
-                  Enddatum (optional)
+                  Enddatum
                 </label>
                 <input
                   type="date"
-                  value={formData.end_date || ''}
+                  value={formData.end_date}
                   onChange={(e) => handleInputChange('end_date', e.target.value)}
                   className="w-full bg-transparent border border-white/20 text-white px-3 py-2 focus:border-white/40 focus:outline-none"
-                  placeholder="Für mehrtägige Blöcke"
+                  required
                 />
                 <p className="text-xs text-white/50 mt-1">
-                  Leer lassen für einzelne Tage
+                  Für mehrtägige Blöcke
                 </p>
               </div>
             </div>

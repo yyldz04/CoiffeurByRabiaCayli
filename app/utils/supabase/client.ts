@@ -125,6 +125,17 @@ export interface Appointment {
 
 export interface BusySlot {
   id: string
+  start_datetime: string  // ISO timestamp string
+  end_datetime: string    // ISO timestamp string
+  title: string
+  description?: string
+  created_at: string
+  updated_at: string
+}
+
+// Legacy interface for backward compatibility during migration
+export interface LegacyBusySlot {
+  id: string
   busy_date: string
   end_date?: string
   start_time: string
@@ -517,14 +528,18 @@ export const appointmentService = {
     return result.hasConflict;
   },
 
-  // Check if a time slot conflicts with busy slots
+  // Check if a time slot conflicts with busy slots (Updated for TIMESTAMP schema)
   async checkBusySlotConflict(date: string, startTime: string, endTime: string) {
     try {
       const busySlotsForDate = await busySlotService.getBusySlotsForDate(date);
       
+      // Convert appointment time to full datetime for comparison
+      const appointmentStartDateTime = `${date}T${startTime}:00`;
+      const appointmentEndDateTime = `${date}T${endTime}:00`;
+      
       // Check if the appointment time overlaps with any busy slot
       for (const slot of busySlotsForDate) {
-        if (startTime < slot.end_time && endTime > slot.start_time) {
+        if (appointmentStartDateTime < slot.end_datetime && appointmentEndDateTime > slot.start_datetime) {
           return true;
         }
       }
@@ -537,38 +552,45 @@ export const appointmentService = {
   }
 }
 
-// Busy slots management operations
+// Busy slots management operations (Updated for TIMESTAMP schema)
 export const busySlotService = {
   // Get all busy slots
   async getBusySlots() {
     const { data, error } = await supabaseAdmin
       .from('busy_slots')
       .select('*')
-      .order('busy_date', { ascending: true })
-      .order('start_time', { ascending: true })
+      .order('start_datetime', { ascending: true })
 
     if (error) throw error
     return data || []
   },
 
-  // Get busy slots for a specific date
-  async getBusySlotsForDate(date: string) {
-    const { data, error } = await supabaseAdmin
+  // Get busy slots for a specific date range
+  async getBusySlotsForDateRange(startDate: string, endDate?: string) {
+    let query = supabaseAdmin
       .from('busy_slots')
       .select('*')
-      .or(`and(busy_date.eq.${date}),and(busy_date.lte.${date},end_date.gte.${date})`)
-      .order('start_time', { ascending: true })
+      .gte('start_datetime', `${startDate}T00:00:00`)
+    
+    if (endDate) {
+      query = query.lte('end_datetime', `${endDate}T23:59:59`)
+    }
+    
+    const { data, error } = await query.order('start_datetime', { ascending: true })
 
     if (error) throw error
     return data || []
+  },
+
+  // Get busy slots for a specific date (backward compatibility)
+  async getBusySlotsForDate(date: string) {
+    return this.getBusySlotsForDateRange(date, date)
   },
 
   // Create a new busy slot
   async createBusySlot(slotData: {
-    busy_date: string
-    end_date?: string
-    start_time: string
-    end_time: string
+    start_datetime: string  // ISO timestamp string
+    end_datetime: string    // ISO timestamp string
     title: string
     description?: string
   }) {
@@ -584,10 +606,8 @@ export const busySlotService = {
 
   // Update a busy slot
   async updateBusySlot(slotId: string, slotData: {
-    busy_date: string
-    end_date?: string
-    start_time: string
-    end_time: string
+    start_datetime: string  // ISO timestamp string
+    end_datetime: string    // ISO timestamp string
     title: string
     description?: string
   }) {
@@ -612,21 +632,43 @@ export const busySlotService = {
     if (error) throw error
   },
 
-  // Check if a time slot conflicts with busy slots
-  async checkBusySlotConflict(date: string, startTime: string, endTime: string, excludeId?: string) {
-    let query = supabaseAdmin
-      .from('busy_slots')
-      .select('id, start_time, end_time, title')
-      .or(`and(busy_date.eq.${date}),and(busy_date.lte.${date},end_date.gte.${date})`)
-      .or(`and(start_time.lt.${endTime},end_time.gt.${startTime})`)
-
-    if (excludeId) {
-      query = query.neq('id', excludeId)
+  // Helper function to convert old format to new format
+  convertLegacyToTimestamp(legacyData: {
+    busy_date: string
+    end_date?: string
+    start_time: string
+    end_time: string
+    title: string
+    description?: string
+  }) {
+    const startDate = legacyData.busy_date
+    const endDate = legacyData.end_date || legacyData.busy_date
+    
+    return {
+      start_datetime: `${startDate}T${legacyData.start_time}:00`,
+      end_datetime: `${endDate}T${legacyData.end_time}:00`,
+      title: legacyData.title,
+      description: legacyData.description
     }
+  },
 
-    const { data, error } = await query
-
-    if (error) throw error
-    return data && data.length > 0
+  // Helper function to convert new format to display format
+  convertTimestampToDisplay(timestampData: {
+    start_datetime: string
+    end_datetime: string
+    title: string
+    description?: string
+  }) {
+    const start = new Date(timestampData.start_datetime)
+    const end = new Date(timestampData.end_datetime)
+    
+    return {
+      start_date: start.toISOString().split('T')[0],
+      end_date: end.toISOString().split('T')[0],
+      start_time: start.toTimeString().slice(0, 5),
+      end_time: end.toTimeString().slice(0, 5),
+      title: timestampData.title,
+      description: timestampData.description
+    }
   }
 }

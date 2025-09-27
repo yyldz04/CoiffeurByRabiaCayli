@@ -23,8 +23,16 @@ export function CalendarWidget({
     return new Date(date.getFullYear(), date.getMonth(), 1);
   });
 
+  // Helper function to format date as YYYY-MM-DD in local timezone
+  const formatDateLocal = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   const today = new Date();
-  const todayStr = today.toISOString().split('T')[0];
+  const todayStr = formatDateLocal(today);
 
   // Generate calendar days
   const generateCalendarDays = () => {
@@ -65,7 +73,7 @@ export function CalendarWidget({
   };
 
   const isDateDisabled = (date: Date) => {
-    const dateStr = date.toISOString().split('T')[0];
+    const dateStr = formatDateLocal(date);
     
     // Check if date is in the past
     if (dateStr < todayStr) return true;
@@ -81,7 +89,7 @@ export function CalendarWidget({
   };
 
   const isDateSelected = (date: Date) => {
-    return date.toISOString().split('T')[0] === selectedDate;
+    return formatDateLocal(date) === selectedDate;
   };
 
   const isCurrentMonth = (date: Date) => {
@@ -89,14 +97,14 @@ export function CalendarWidget({
   };
 
   const isToday = (date: Date) => {
-    return date.toISOString().split('T')[0] === todayStr;
+    return formatDateLocal(date) === todayStr;
   };
 
   const handleDateClick = (date: Date, event: React.MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
     if (!isDateDisabled(date)) {
-      onDateSelect(date.toISOString().split('T')[0]);
+      onDateSelect(formatDateLocal(date));
     }
   };
 

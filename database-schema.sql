@@ -72,16 +72,12 @@ CREATE TABLE public.appointments (
 -- Busy time slots (admin reserved times)
 CREATE TABLE public.busy_slots (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  busy_date DATE NOT NULL,
-  end_date DATE,
-  start_time TIME NOT NULL,
-  end_time TIME NOT NULL,
+  start_datetime TIMESTAMPTZ NOT NULL,
+  end_datetime TIMESTAMPTZ NOT NULL,
   title TEXT NOT NULL DEFAULT 'Besetzt',
   description TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW(),
-  CONSTRAINT valid_time_range CHECK (end_time > start_time),
-  CONSTRAINT valid_date_range CHECK (end_date IS NULL OR end_date >= busy_date)
+  updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Settings table for website configuration

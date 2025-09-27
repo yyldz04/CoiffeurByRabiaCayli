@@ -1,20 +1,25 @@
+import { LegalPageTemplate } from './LegalPageTemplate';
+
 export function ImpressumPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 md:px-8 py-8 md:py-16">
-      <div className="text-center mb-12 md:mb-16">
-        <h2 className="text-2xl md:text-4xl tracking-[0.2em] mb-6 md:mb-8 uppercase">Impressum</h2>
-      </div>
-
-      <div className="border border-white/20 p-6 md:p-12">
-        <div className="space-y-8">
+    <LegalPageTemplate title="Impressum">
           <div>
             <h3 className="tracking-[0.1em] mb-4 uppercase">Angaben gemäß § 5 TMG</h3>
             <div className="text-white/70 space-y-2 uppercase">
-              <p>COIFFEUR BY RABIA CAYLI  </p>
-              <p>Salon Owner</p>
+              <p>COIFFEUR BY RABIA CAYLI</p>
+              <p>Rechtsform: Einzelunternehmen</p>
+              <p>Inhaberin: Rabia Cayli</p>
               <p>St. Ulrich Straße 28</p>
               <p>6843 Götzis</p>
               <p>Österreich</p>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="tracking-[0.1em] mb-4 uppercase">Geschäftszeiten</h3>
+            <div className="text-white/70 space-y-2 uppercase">
+              <p>Montag - Freitag: 09:00 - 18:00 Uhr</p>
+              <p>Samstag: Auf Anfrage</p>
             </div>
           </div>
 
@@ -27,11 +32,50 @@ export function ImpressumPage() {
           </div>
 
           <div>
-            <h3 className="tracking-[0.1em] mb-4 uppercase">Berufsrechtliche Regelungen</h3>
+            <h3 className="tracking-[0.1em] mb-4 uppercase">Gewerberechtliche Informationen</h3>
             <div className="text-white/70 space-y-2 uppercase">
               <p>Berufsbezeichnung: Friseurin</p>
               <p>Zuständige Kammer: Wirtschaftskammer Vorarlberg</p>
               <p>Verliehen in: Österreich</p>
+              <p>Gewerbeberechtigung: Friseurgewerbe</p>
+              <p>UID-Nr.: [Ihre UID-Nummer hier eintragen]</p>
+              <p>Firmenbuchnummer: [Falls eingetragen]</p>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="tracking-[0.1em] mb-4 uppercase">Versicherungen</h3>
+            <div className="text-white/70 space-y-2 uppercase">
+              <p>Berufshaftpflichtversicherung: [Versicherungsgesellschaft]</p>
+              <p>Versicherungsnummer: [Nummer hier eintragen]</p>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="tracking-[0.1em] mb-4 uppercase">Datenschutz</h3>
+            <div className="text-white/70 space-y-2 uppercase">
+              <p>Datenschutzerklärung verfügbar unter: /datenschutz</p>
+              <p>Verantwortlich für Datenverarbeitung: Rabia Cayli</p>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="tracking-[0.1em] mb-4 uppercase">Urheberrecht</h3>
+            <div className="text-white/70 space-y-2 uppercase">
+              <p>© 2024 COIFFEUR BY RABIA CAYLI</p>
+              <p>Alle Inhalte dieser Website sind urheberrechtlich geschützt.</p>
+              <p>Webdesign: [Ihr Webdesigner/Agentur]</p>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="tracking-[0.1em] mb-4 uppercase">Haftungsausschluss</h3>
+            <div className="text-white/70 space-y-2 uppercase">
+              <p>
+                Die Inhalte dieser Website wurden mit größter Sorgfalt erstellt. 
+                Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte 
+                können wir jedoch keine Gewähr übernehmen.
+              </p>
             </div>
           </div>
 
@@ -57,8 +101,16 @@ export function ImpressumPage() {
               </p>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
+
+          <div>
+            <h3 className="tracking-[0.1em] mb-4 uppercase">Barrierefreiheit</h3>
+            <div className="text-white/70 space-y-2 uppercase">
+              <p>
+                Wir bemühen uns, unsere Website barrierefrei zu gestalten. 
+                Bei Problemen wenden Sie sich bitte an uns.
+              </p>
+            </div>
+          </div>
+    </LegalPageTemplate>
   );
 }

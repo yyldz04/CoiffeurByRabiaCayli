@@ -83,12 +83,10 @@ export function Calendar({ onFullscreenToggle }: CalendarProps) {
     }
   };
 
-  // Busy slot handlers
+  // Busy slot handlers (Updated for TIMESTAMP schema)
   const handleSaveBusySlot = async (slotData: {
-    busy_date: string;
-    end_date?: string;
-    start_time: string;
-    end_time: string;
+    start_datetime: string;
+    end_datetime: string;
     title: string;
     description?: string;
   }) => {
@@ -171,16 +169,30 @@ export function Calendar({ onFullscreenToggle }: CalendarProps) {
     }
   };
 
+  // Helper function to format date as YYYY-MM-DD in local timezone
+  const formatDateLocal = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   // Get appointments for a specific date
   const getAppointmentsForDate = (date: Date) => {
-    const dateStr = date.toISOString().split('T')[0];
+    const dateStr = formatDateLocal(date);
     return appointments.filter(appointment => appointment.appointment_date === dateStr);
   };
 
-  // Get busy slots for a specific date
+  // Get busy slots for a specific date (Updated for TIMESTAMP schema)
   const getBusySlotsForDate = (date: Date) => {
-    const dateStr = date.toISOString().split('T')[0];
-    return busySlots.filter(slot => slot.busy_date === dateStr);
+    const dateStr = formatDateLocal(date);
+    return busySlots.filter(slot => {
+      const startDate = new Date(slot.start_datetime).toISOString().split('T')[0];
+      const endDate = new Date(slot.end_datetime).toISOString().split('T')[0];
+      
+      // Check if the date falls within the busy slot range
+      return startDate <= dateStr && endDate >= dateStr;
+    });
   };
 
   // Get appointments for a week
@@ -195,7 +207,7 @@ export function Calendar({ onFullscreenToggle }: CalendarProps) {
     for (let i = 0; i < 7; i++) {
       const weekDate = new Date(startOfWeek);
       weekDate.setDate(startOfWeek.getDate() + i);
-      const dateStr = weekDate.toISOString().split('T')[0];
+      const dateStr = formatDateLocal(weekDate);
       weekAppointments[dateStr] = getAppointmentsForDate(weekDate);
     }
     
@@ -213,7 +225,7 @@ export function Calendar({ onFullscreenToggle }: CalendarProps) {
     
     for (let day = 1; day <= lastDay.getDate(); day++) {
       const monthDate = new Date(year, month, day);
-      const dateStr = monthDate.toISOString().split('T')[0];
+      const dateStr = formatDateLocal(monthDate);
       monthAppointments[dateStr] = getAppointmentsForDate(monthDate);
     }
     
@@ -285,7 +297,11 @@ export function Calendar({ onFullscreenToggle }: CalendarProps) {
     // Combine appointments and busy slots, sort by time
     const allItems = [
       ...dayAppointments.map(apt => ({ type: 'appointment' as const, data: apt, time: apt.appointment_time })),
-      ...dayBusySlots.map(slot => ({ type: 'busy' as const, data: slot, time: slot.start_time }))
+      ...dayBusySlots.map(slot => ({ 
+        type: 'busy' as const, 
+        data: slot, 
+        time: new Date(slot.start_datetime).toTimeString().slice(0, 5) 
+      }))
     ].sort((a, b) => a.time.localeCompare(b.time));
     
     return (
@@ -315,7 +331,20 @@ export function Calendar({ onFullscreenToggle }: CalendarProps) {
                           <div className="flex items-center gap-2">
                             <Clock className="h-4 w-4 text-red-400" />
                             <span className="tracking-[0.05em] uppercase font-mono text-red-400">
-                              {formatTime(slot.start_time)} - {formatTime(slot.end_time)}
+                              {(() => {
+                                const startDate = new Date(slot.start_datetime);
+                                const endDate = new Date(slot.end_datetime);
+                                const startDateStr = startDate.toISOString().split('T')[0];
+                                const endDateStr = endDate.toISOString().split('T')[0];
+                                
+                                if (startDateStr !== endDateStr) {
+                                  // Multi-day busy slot
+                                  return `${startDateStr} ${formatTime(startDate.toTimeString().slice(0, 5))} - ${endDateStr} ${formatTime(endDate.toTimeString().slice(0, 5))}`;
+                                } else {
+                                  // Single day busy slot
+                                  return `${formatTime(startDate.toTimeString().slice(0, 5))} - ${formatTime(endDate.toTimeString().slice(0, 5))}`;
+                                }
+                              })()}
                             </span>
                           </div>
                           <div className="flex items-center gap-2">
@@ -346,7 +375,20 @@ export function Calendar({ onFullscreenToggle }: CalendarProps) {
                         <div className="flex items-center gap-2">
                           <Clock className="h-4 w-4 text-red-400" />
                           <span className="tracking-[0.05em] uppercase text-sm text-red-400">
-                            {formatTime(slot.start_time)} - {formatTime(slot.end_time)}
+                            {(() => {
+                              const startDate = new Date(slot.start_datetime);
+                              const endDate = new Date(slot.end_datetime);
+                              const startDateStr = startDate.toISOString().split('T')[0];
+                              const endDateStr = endDate.toISOString().split('T')[0];
+                              
+                              if (startDateStr !== endDateStr) {
+                                // Multi-day busy slot
+                                return `${startDateStr} ${formatTime(startDate.toTimeString().slice(0, 5))} - ${endDateStr} ${formatTime(endDate.toTimeString().slice(0, 5))}`;
+                              } else {
+                                // Single day busy slot
+                                return `${formatTime(startDate.toTimeString().slice(0, 5))} - ${formatTime(endDate.toTimeString().slice(0, 5))}`;
+                              }
+                            })()}
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
@@ -566,7 +608,7 @@ export function Calendar({ onFullscreenToggle }: CalendarProps) {
           {weekDays.map((day, index) => {
             const dayDate = new Date(startOfWeek);
             dayDate.setDate(startOfWeek.getDate() + index);
-            const dateStr = dayDate.toISOString().split('T')[0];
+            const dateStr = formatDateLocal(dayDate);
             const dayAppointments = weekAppointments[dateStr] || [];
             const dayBusySlots = getBusySlotsForDate(dayDate);
             const isToday = dayDate.toDateString() === new Date().toDateString();
@@ -602,7 +644,7 @@ export function Calendar({ onFullscreenToggle }: CalendarProps) {
                   
                   {/* Busy Slots */}
                   {dayBusySlots
-                    .sort((a, b) => a.start_time.localeCompare(b.start_time))
+                    .sort((a, b) => new Date(a.start_datetime).toTimeString().localeCompare(new Date(b.start_datetime).toTimeString()))
                     .map((slot) => (
                       <div
                         key={slot.id}
@@ -612,7 +654,22 @@ export function Calendar({ onFullscreenToggle }: CalendarProps) {
                           setBusySlotDialog({ isOpen: true, existingSlot: slot });
                         }}
                       >
-                        <div className="font-mono">{formatTime(slot.start_time)}</div>
+                        <div className="font-mono">
+                          {(() => {
+                            const startDate = new Date(slot.start_datetime);
+                            const endDate = new Date(slot.end_datetime);
+                            const startDateStr = startDate.toISOString().split('T')[0];
+                            const endDateStr = endDate.toISOString().split('T')[0];
+                            
+                            if (startDateStr !== endDateStr) {
+                              // Multi-day busy slot
+                              return `${startDateStr} ${formatTime(startDate.toTimeString().slice(0, 5))} - ${endDateStr} ${formatTime(endDate.toTimeString().slice(0, 5))}`;
+                            } else {
+                              // Single day busy slot
+                              return `${formatTime(startDate.toTimeString().slice(0, 5))} - ${formatTime(endDate.toTimeString().slice(0, 5))}`;
+                            }
+                          })()}
+                        </div>
                         <div className="truncate">{slot.title}</div>
                       </div>
                     ))}
@@ -661,7 +718,7 @@ export function Calendar({ onFullscreenToggle }: CalendarProps) {
           ))}
           
           {calendarDays.map((date, index) => {
-            const dateStr = date.toISOString().split('T')[0];
+            const dateStr = formatDateLocal(date);
             const dayAppointments = monthAppointments[dateStr] || [];
             const dayBusySlots = getBusySlotsForDate(date);
             const isCurrentMonth = date.getMonth() === firstDay.getMonth();
@@ -682,8 +739,8 @@ export function Calendar({ onFullscreenToggle }: CalendarProps) {
                   {/* Show appointments and busy slots combined, limit to 3 total */}
                   {[...dayAppointments.slice(0, 2), ...dayBusySlots.slice(0, 1)]
                     .sort((a, b) => {
-                      const timeA = 'appointment_time' in a ? a.appointment_time : a.start_time;
-                      const timeB = 'appointment_time' in b ? b.appointment_time : b.start_time;
+                      const timeA = 'appointment_time' in a ? a.appointment_time : new Date(a.start_datetime).toTimeString().slice(0, 5);
+                      const timeB = 'appointment_time' in b ? b.appointment_time : new Date(b.start_datetime).toTimeString().slice(0, 5);
                       return timeA.localeCompare(timeB);
                     })
                     .slice(0, 3)
@@ -716,7 +773,22 @@ export function Calendar({ onFullscreenToggle }: CalendarProps) {
                               setBusySlotDialog({ isOpen: true, existingSlot: slot });
                             }}
                           >
-                            <div className="font-mono">{formatTime(slot.start_time)}</div>
+                            <div className="font-mono">
+                              {(() => {
+                                const startDate = new Date(slot.start_datetime);
+                                const endDate = new Date(slot.end_datetime);
+                                const startDateStr = startDate.toISOString().split('T')[0];
+                                const endDateStr = endDate.toISOString().split('T')[0];
+                                
+                                if (startDateStr !== endDateStr) {
+                                  // Multi-day busy slot
+                                  return `${startDateStr} ${formatTime(startDate.toTimeString().slice(0, 5))} - ${endDateStr} ${formatTime(endDate.toTimeString().slice(0, 5))}`;
+                                } else {
+                                  // Single day busy slot
+                                  return `${formatTime(startDate.toTimeString().slice(0, 5))} - ${formatTime(endDate.toTimeString().slice(0, 5))}`;
+                                }
+                              })()}
+                            </div>
                             <div className="truncate">{slot.title}</div>
                           </div>
                         );

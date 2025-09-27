@@ -1,12 +1,8 @@
+import { LegalPageTemplate } from './LegalPageTemplate';
+
 export function AGBPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 md:px-8 py-8 md:py-16">
-      <div className="text-center mb-12 md:mb-16">
-        <h2 className="text-2xl md:text-4xl tracking-[0.2em] mb-6 md:mb-8 uppercase">Allgemeine Geschäftsbedingungen</h2>
-      </div>
-
-      <div className="border border-white/20 p-6 md:p-12">
-        <div className="space-y-8">
+    <LegalPageTemplate title="Allgemeine Geschäftsbedingungen">
           <div>
             <h3 className="tracking-[0.1em] mb-4 uppercase">1. Geltungsbereich</h3>
             <div className="text-white/70 space-y-4 uppercase">
@@ -85,8 +81,6 @@ export function AGBPage() {
               </p>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
+    </LegalPageTemplate>
   );
 }

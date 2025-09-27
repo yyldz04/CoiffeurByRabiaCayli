@@ -97,7 +97,7 @@ export function HomePage({ onPageChange }: HomePageProps) {
       <div className="border-t border-white/20 px-0 md:px-4 xl:px-8 py-12 md:py-16">
         <div className="max-w-4xl mx-auto text-center">
           <h3 className="text-xl md:text-3xl tracking-[0.15em] mb-6 md:mb-8 uppercase">
-            SALON <span className="text-white/40 mx-2">✕</span> BRAND
+            RABIYA CAYLI <span className="text-white/40 mx-2">✕</span> REDKEN
           </h3>
           <p className="text-white/70 max-w-2xl mx-auto leading-relaxed uppercase">
             Dank den hoch qualitativen Produkten von Redken bieten wir Ihnen erstklassige 

@@ -131,8 +131,9 @@ DECLARE
   v_slots JSON[] := '{}';
   v_current_time TIME;
   v_appointment_end_time TIME;
-  v_busy_end_time TIME;
   v_next_start_time TIME;
+  v_slot_start_datetime TIMESTAMPTZ;
+  v_slot_end_datetime TIMESTAMPTZ;
 BEGIN
   -- Basic validation
   IF p_date IS NULL OR p_duration_minutes IS NULL OR p_duration_minutes <= 0 THEN
@@ -195,19 +196,18 @@ BEGIN
           v_reason := 'Termin bereits gebucht';
         END IF;
         
-        -- Check for conflicts with busy slots (including date ranges)
+        -- Check for conflicts with busy slots (Updated for TIMESTAMP schema)
         IF v_available THEN
-          SELECT end_time
-          INTO v_busy_end_time
+          -- Convert time slot to TIMESTAMPTZ for comparison (Austria timezone: UTC+1)
+          v_slot_start_datetime := (p_date + v_time_str::TIME) AT TIME ZONE 'Europe/Vienna';
+          v_slot_end_datetime := (p_date + v_end_time_str::TIME) AT TIME ZONE 'Europe/Vienna';
+          
+          -- MUCH SIMPLER: Direct TIMESTAMPTZ comparison
+          -- No more complex date + time arithmetic!
+          PERFORM 1
           FROM public.busy_slots
-          WHERE (
-            (busy_date = p_date) OR 
-            (busy_date <= p_date AND (end_date IS NULL OR end_date >= p_date))
-          )
-            AND start_time < v_end_time_str::TIME
-            AND end_time > v_time_str::TIME
-          ORDER BY start_time
-          LIMIT 1;
+          WHERE start_datetime < v_slot_end_datetime 
+            AND end_datetime > v_slot_start_datetime;
           
           IF FOUND THEN
             v_available := FALSE;
@@ -215,32 +215,18 @@ BEGIN
           END IF;
         END IF;
         
-        -- Additional check: ensure there's enough time before the next appointment/busy slot
+        -- Additional check: ensure there's enough time before the next appointment
         IF v_available THEN
-          -- Find the next appointment or busy slot that starts after this slot
-          SELECT LEAST(
-            COALESCE(
-              (SELECT MIN(a.appointment_time::TIME)
-               FROM public.appointments a
-               WHERE a.appointment_date = p_date
-                 AND a.status IN ('pending', 'confirmed')
-                 AND a.appointment_time::TIME >= v_end_time_str::TIME),
-              '23:59'::TIME
-            ),
-            COALESCE(
-              (SELECT MIN(start_time)
-               FROM public.busy_slots
-               WHERE (
-                 (busy_date = p_date) OR 
-                 (busy_date <= p_date AND (end_date IS NULL OR end_date >= p_date))
-               )
-                 AND start_time >= v_end_time_str::TIME),
-              '23:59'::TIME
-            )
-          ) INTO v_next_start_time;
+          -- Find the next appointment that starts after this slot
+          SELECT MIN(a.appointment_time::TIME)
+          INTO v_next_start_time
+          FROM public.appointments a
+          WHERE a.appointment_date = p_date
+            AND a.status IN ('pending', 'confirmed')
+            AND a.appointment_time::TIME >= v_end_time_str::TIME;
           
           -- If there's not enough gap, mark as unavailable
-          IF v_next_start_time < v_end_time_str::TIME + INTERVAL '5 minutes' THEN
+          IF v_next_start_time IS NOT NULL AND v_next_start_time < v_end_time_str::TIME + INTERVAL '5 minutes' THEN
             v_available := FALSE;
             v_reason := 'Nicht genügend Zeit zwischen Terminen';
           END IF;
