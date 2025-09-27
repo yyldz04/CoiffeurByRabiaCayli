@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
-import { RefreshCw, Plus, Trash2, Settings, Copy, Calendar as CalendarIcon, Maximize2, Minimize2 } from "lucide-react";
+import { RefreshCw, Plus, Trash2, Settings, Copy, Calendar as CalendarIcon, Maximize2, Minimize2, CheckCircle, XCircle, AlertCircle } from "lucide-react";
 import { TabHeader } from "./TabHeader";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 
@@ -64,6 +64,9 @@ export function CalendarTab({ onFullscreenToggle }: CalendarTabProps) {
   // Settings state
   const [editingSettings, setEditingSettings] = useState(false);
   const [tempSettings, setTempSettings] = useState<CalendarSettings | null>(null);
+  
+  // CalDAV status state
+  const [caldavStatus, setCaldavStatus] = useState<'checking' | 'online' | 'offline' | 'error'>('checking');
 
   const handleFullscreenToggle = () => {
     const newFullscreenState = !isFullscreen;
@@ -249,11 +252,64 @@ export function CalendarTab({ onFullscreenToggle }: CalendarTabProps) {
     return `${baseUrl}/api/caldav-server`;
   };
 
+  // Test CalDAV connection
+  const testCalDAVConnection = async () => {
+    setCaldavStatus('checking');
+    try {
+      const response = await fetch('/api/caldav-server', {
+        method: 'OPTIONS',
+        headers: {
+          'Access-Control-Request-Method': 'PROPFIND',
+          'Access-Control-Request-Headers': 'authorization, depth'
+        }
+      });
+      
+      if (response.ok) {
+        setCaldavStatus('online');
+      } else {
+        setCaldavStatus('offline');
+      }
+    } catch (error) {
+      console.error('CalDAV connection test failed:', error);
+      setCaldavStatus('error');
+    }
+  };
+
+  // Get status icon and text
+  const getStatusDisplay = () => {
+    switch (caldavStatus) {
+      case 'checking':
+        return {
+          icon: <RefreshCw className="w-4 h-4 animate-spin" />,
+          text: 'Prüfe Verbindung...',
+          color: 'text-blue-400'
+        };
+      case 'online':
+        return {
+          icon: <CheckCircle className="w-4 h-4" />,
+          text: 'CalDAV Server Online',
+          color: 'text-green-400'
+        };
+      case 'offline':
+        return {
+          icon: <XCircle className="w-4 h-4" />,
+          text: 'CalDAV Server Offline',
+          color: 'text-red-400'
+        };
+      case 'error':
+        return {
+          icon: <AlertCircle className="w-4 h-4" />,
+          text: 'Verbindungsfehler',
+          color: 'text-yellow-400'
+        };
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       setError(null);
-      await Promise.all([fetchTokens(), fetchSettings()]);
+      await Promise.all([fetchTokens(), fetchSettings(), testCalDAVConnection()]);
       setLoading(false);
     };
     
@@ -288,8 +344,16 @@ export function CalendarTab({ onFullscreenToggle }: CalendarTabProps) {
       {/* Header */}
       <TabHeader
         title="Kalender-Integration"
-        subtitle="iCal-Feeds für Apple Calendar, Google Calendar und andere Anwendungen"
+        subtitle="CalDAV & iCal-Feeds für Apple Calendar, Google Calendar, Outlook und andere Anwendungen"
       >
+        {/* CalDAV Status Indicator */}
+        <div className="flex items-center gap-2 px-3 py-2 bg-black/30 border border-white/20 rounded">
+          {getStatusDisplay().icon}
+          <span className={`text-sm uppercase tracking-[0.05em] ${getStatusDisplay().color}`}>
+            {getStatusDisplay().text}
+          </span>
+        </div>
+
         <Button 
           variant="primaryOutline"
           size="dashboard"
@@ -297,6 +361,7 @@ export function CalendarTab({ onFullscreenToggle }: CalendarTabProps) {
           onClick={() => {
             fetchTokens();
             fetchSettings();
+            testCalDAVConnection();
           }}
           className="hidden sm:flex"
         >
@@ -311,6 +376,7 @@ export function CalendarTab({ onFullscreenToggle }: CalendarTabProps) {
           onClick={() => {
             fetchTokens();
             fetchSettings();
+            testCalDAVConnection();
           }}
           title="Aktualisieren"
           className="sm:hidden"
@@ -452,6 +518,28 @@ export function CalendarTab({ onFullscreenToggle }: CalendarTabProps) {
               ))}
             </div>
           )}
+          
+          {/* CalDAV Troubleshooting Section */}
+          <div className="mt-8 bg-blue-500/10 border border-blue-500/30 p-6 rounded">
+            <h3 className="text-lg tracking-[0.05em] uppercase text-blue-400 mb-4">
+              CalDAV Troubleshooting
+            </h3>
+            <div className="space-y-3 text-sm text-white/80">
+              <div>
+                <p className="font-semibold text-blue-300 mb-1">Häufige Probleme:</p>
+                <ul className="list-disc list-inside space-y-1 ml-4">
+                  <li>Stellen Sie sicher, dass der Benutzername <code className="bg-black/30 px-1 rounded">calendar</code> ist</li>
+                  <li>Das Passwort muss der vollständige Token sein (ohne Leerzeichen)</li>
+                  <li>Bei Apple Calendar: Wählen Sie "Anderer CalDAV-Account"</li>
+                  <li>Bei Thunderbird: Installieren Sie das Lightning-Addon</li>
+                </ul>
+              </div>
+              <div>
+                <p className="font-semibold text-blue-300 mb-1">Verbindungstest:</p>
+                <p>Der CalDAV Server Status wird oben angezeigt. Bei Problemen kontaktieren Sie den Administrator.</p>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
@@ -835,25 +923,37 @@ export function CalendarTab({ onFullscreenToggle }: CalendarTabProps) {
               <p className="mb-2">
                 <strong>Verfügbare Integrationen:</strong>
               </p>
-              <div className="space-y-3">
-                <div>
-                  <p className="font-semibold text-blue-400">📅 iCal Feed (Read-Only):</p>
+              <div className="space-y-4">
+                <div className="bg-green-500/10 border border-green-500/30 p-4 rounded">
+                  <p className="font-semibold text-green-400 mb-2">🔄 CalDAV (Empfohlen - Read/Write):</p>
+                  <ol className="list-decimal list-inside space-y-1 ml-4">
+                    <li>Kopieren Sie die CalDAV Server URL</li>
+                    <li>Öffnen Sie Ihre Kalender-App</li>
+                    <li>Fügen Sie als &quot;CalDAV Account&quot; hinzu</li>
+                    <li>Benutzername: <code className="bg-black/30 px-1 rounded">calendar</code> | Passwort: <code className="bg-black/30 px-1 rounded">[Token]</code></li>
+                    <li>Bidirektionale Synchronisation möglich</li>
+                    <li>Termine können direkt im Kalender erstellt/geändert werden</li>
+                  </ol>
+                  <div className="mt-3 p-3 bg-green-600/20 rounded border border-green-500/50">
+                    <p className="text-green-300 text-xs">
+                      <strong>Unterstützte Apps:</strong> Apple Calendar, Thunderbird, Evolution, DAVx5 (Android), Outlook (mit CalDAV-Plugin)
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="bg-blue-500/10 border border-blue-500/30 p-4 rounded">
+                  <p className="font-semibold text-blue-400 mb-2">📅 iCal Feed (Read-Only):</p>
                   <ol className="list-decimal list-inside space-y-1 ml-4">
                     <li>Kopieren Sie die iCal Feed URL</li>
                     <li>Öffnen Sie Ihre Kalender-App</li>
                     <li>Fügen Sie als &quot;Kalender abonnieren&quot; hinzu</li>
                     <li>Nur zum Anzeigen - keine Buchungen möglich</li>
                   </ol>
-                </div>
-                <div>
-                  <p className="font-semibold text-green-400">🔄 CalDAV (Read/Write):</p>
-                  <ol className="list-decimal list-inside space-y-1 ml-4">
-                    <li>Kopieren Sie die CalDAV Server URL</li>
-                    <li>Öffnen Sie Ihre Kalender-App</li>
-                    <li>Fügen Sie als &quot;CalDAV Account&quot; hinzu</li>
-                    <li>Benutzername: calendar | Passwort: [Token]</li>
-                    <li>Bidirektionale Synchronisation möglich</li>
-                  </ol>
+                  <div className="mt-3 p-3 bg-blue-600/20 rounded border border-blue-500/50">
+                    <p className="text-blue-300 text-xs">
+                      <strong>Unterstützte Apps:</strong> Google Calendar, Outlook.com, Apple Calendar (als Abonnement)
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
