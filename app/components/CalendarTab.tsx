@@ -39,9 +39,7 @@ interface NewTokenData {
   expires_days?: number;
 }
 
-interface CalendarTabProps {}
-
-export function CalendarTab({}: CalendarTabProps) {
+export function CalendarTab() {
   const [tokens, setTokens] = useState<CalendarToken[]>([]);
   const [settings, setSettings] = useState<CalendarSettings | null>(null);
   const [loading, setLoading] = useState(true);

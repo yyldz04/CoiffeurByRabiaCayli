@@ -9,7 +9,7 @@ interface StatusBadgeProps {
 }
 
 export function StatusBadge({ status, size = "xs", className }: StatusBadgeProps) {
-  const getStatusVariant = (status: string) => {
+  const getStatusVariant = (status: string): "success" | "warning" | "cancel" | "info" | "secondary" => {
     switch (status) {
       case 'confirmed': return 'success';
       case 'pending': return 'warning';
@@ -39,7 +39,7 @@ export function StatusBadge({ status, size = "xs", className }: StatusBadgeProps
 
   return (
     <Button
-      variant={getStatusVariant(status) as any}
+      variant={getStatusVariant(status)}
       size={size}
       className={`pointer-events-none ${className || ''}`}
       disabled

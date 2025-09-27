@@ -26,7 +26,7 @@ export async function PATCH(request: NextRequest) {
   return proxyToCalDAVFunction(request);
 }
 
-export async function OPTIONS(request: NextRequest) {
+export async function OPTIONS(_request: NextRequest) {
   // Handle CORS preflight requests directly
   return new NextResponse(null, {
     status: 200,

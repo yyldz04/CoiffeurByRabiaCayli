@@ -2,12 +2,8 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { AppointmentsTab } from "./AppointmentsTab";
-import { ServicesTab } from "./ServicesTab";
-import { CategoriesTab } from "./CategoriesTab";
 import { SettingsTab } from "./SettingsTab";
-import { UIShowcaseTab } from "./UIShowcaseTab";
 import { Calendar } from "./Calendar";
-import { CalendarTab } from "./CalendarTab";
 import { SegmentPicker } from "./SegmentPicker";
 import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";

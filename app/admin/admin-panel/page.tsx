@@ -14,7 +14,7 @@ export default function AdminPanelPage() {
   const router = useRouter();
   const [currentTime, setCurrentTime] = useState(new Date());
   const [activeTab, setActiveTab] = useState('SERVICES');
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isFullscreen] = useState(false);
 
   // Update current time every minute
   useEffect(() => {

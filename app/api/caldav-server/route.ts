@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 // Handle CalDAV requests at the root level
-export async function OPTIONS(request: NextRequest) {
+export async function OPTIONS(_request: NextRequest) {
   // Handle CORS preflight requests directly
   return new NextResponse(null, {
     status: 200,
