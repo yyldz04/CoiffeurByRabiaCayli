@@ -7,6 +7,7 @@ import { CategoriesTab } from "./CategoriesTab";
 import { SettingsTab } from "./SettingsTab";
 import { UIShowcaseTab } from "./UIShowcaseTab";
 import { Calendar } from "./Calendar";
+import { CalendarTab } from "./CalendarTab";
 import { SegmentPicker } from "./SegmentPicker";
 import { LogOut } from "lucide-react";
 
@@ -39,7 +40,7 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
   }, []);
 
   // Memoized options and primary options to prevent infinite re-renders
-  const adminOptions = useMemo(() => ['TERMINE', 'KALENDER', 'SERVICES', 'KATEGORIEN', 'EINSTELLUNGEN', 'UI COMPONENTS'], []);
+  const adminOptions = useMemo(() => ['TERMINE', 'KALENDER', 'KALENDER-INTEGRATION', 'SERVICES', 'KATEGORIEN', 'EINSTELLUNGEN', 'UI COMPONENTS'], []);
   const primaryOptions = useMemo(() => ['TERMINE', 'KALENDER'], []);
 
   return (
@@ -114,6 +115,7 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
         {/* Tab Content */}
         {activeTab === 'TERMINE' && <AppointmentsTab currentTime={currentTime} onFullscreenToggle={setIsFullscreen} />}
         {activeTab === 'KALENDER' && <Calendar onFullscreenToggle={setIsFullscreen} />}
+        {activeTab === 'KALENDER-INTEGRATION' && <CalendarTab onFullscreenToggle={setIsFullscreen} />}
         {activeTab === 'SERVICES' && <ServicesTab />}
         {activeTab === 'KATEGORIEN' && <CategoriesTab />}
         {activeTab === 'EINSTELLUNGEN' && <SettingsTab />}
