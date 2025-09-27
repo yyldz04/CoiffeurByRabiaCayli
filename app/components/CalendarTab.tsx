@@ -239,18 +239,16 @@ export function CalendarTab() {
 
   const generateCalDAVUrl = (token: string | null) => {
     if (!token) return '';
-    // For Vercel deployment, use the actual domain or the Next.js API route
-    // The Next.js API route will proxy to the Supabase Edge Function
-    const baseUrl = window.location.origin;
-    return `${baseUrl}/api/caldav-server`;
+    // Use direct Supabase Edge Function URL to avoid Vercel security checkpoints
+    return 'https://jdaufpavhbgrloypbjvv.supabase.co/functions/v1/caldav-server';
   };
 
   // Test CalDAV connection
   const testCalDAVConnection = async () => {
     setCaldavStatus('checking');
     try {
-      // Test via the Next.js API route root path
-      const response = await fetch('/api/caldav-server', {
+      // Test direct Supabase Edge Function to avoid Vercel security checkpoints
+      const response = await fetch('https://jdaufpavhbgrloypbjvv.supabase.co/functions/v1/caldav-server', {
         method: 'OPTIONS',
         headers: {
           'Access-Control-Request-Method': 'PROPFIND',

@@ -57,22 +57,37 @@ serve(async (req) => {
     const url = new URL(req.url)
     const path = url.pathname.replace('/functions/v1/caldav-server', '')
     
+    // Debug logging
+    console.log('CalDAV Request:', {
+      method: req.method,
+      url: req.url,
+      pathname: url.pathname,
+      path: path,
+      headers: Object.fromEntries(req.headers.entries())
+    })
+    
     // Get the actual method (handle method override from Next.js proxy)
     const actualMethod = req.headers.get('X-HTTP-Method-Override') || req.method
     
     // Authenticate request
     const tokenId = await authenticateRequest(req)
     if (!tokenId) {
+      console.log('Authentication failed')
       return new Response('Unauthorized', { 
         status: 401, 
         headers: { 'WWW-Authenticate': 'Basic realm="Calendar"', ...corsHeaders }
       })
     }
+    
+    console.log('Authentication successful, tokenId:', tokenId)
 
     // Route CalDAV requests
     switch (actualMethod) {
       case 'PROPFIND':
-        return handlePropfind(req, path, tokenId)
+        console.log('Routing to handlePropfind')
+        const result = await handlePropfind(req, path, tokenId)
+        console.log('handlePropfind result status:', result.status)
+        return result
       case 'GET':
         return handleGet(req, path, tokenId)
       case 'PUT':
@@ -114,8 +129,8 @@ async function authenticateRequest(req: Request): Promise<string | null> {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
     
-    // Validate token using CalDAV-specific function
-    const { data } = await supabaseClient.rpc('validate_calendar_token_for_caldav', {
+    // Validate token using calendar token function
+    const { data } = await supabaseClient.rpc('validate_calendar_token', {
       p_token: token
     })
     
@@ -130,8 +145,11 @@ async function authenticateRequest(req: Request): Promise<string | null> {
 async function handlePropfind(req: Request, path: string, tokenId: string) {
   const depth = req.headers.get('Depth') || '1'
   
+  console.log('handlePropfind called with:', { path, depth })
+  
   // Root CalDAV discovery
-  if (path === '/' || path === '') {
+  if (path === '/' || path === '' || path === '/caldav-server') {
+    console.log('Handling root CalDAV discovery for path:', path)
     return new Response(`<?xml version="1.0" encoding="utf-8"?>
 <D:multistatus xmlns:D="DAV:" xmlns:C="urn:ietf:params:xml:ns:caldav" xmlns:CS="http://calendarserver.org/ns/">
   <D:response>
@@ -270,6 +288,7 @@ async function handlePropfind(req: Request, path: string, tokenId: string) {
     })
   }
   
+  console.log('handlePropfind: No matching path found, returning Not Found for path:', path)
   return new Response('Not Found', { status: 404, headers: corsHeaders })
 }
 
