@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
-import { RefreshCw, Plus, Trash2, Settings, Copy, Calendar as CalendarIcon, Maximize2, Minimize2, CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import { RefreshCw, Plus, Trash2, Settings, Copy, Calendar as CalendarIcon } from "lucide-react";
 import { TabHeader } from "./TabHeader";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import { StatusBadge } from "./StatusBadge";
 
 // Types
 interface CalendarToken {
@@ -38,17 +39,14 @@ interface NewTokenData {
   expires_days?: number;
 }
 
-interface CalendarTabProps {
-  onFullscreenToggle: (isFullscreen: boolean) => void;
-}
+interface CalendarTabProps {}
 
-export function CalendarTab({ onFullscreenToggle }: CalendarTabProps) {
+export function CalendarTab({}: CalendarTabProps) {
   const [tokens, setTokens] = useState<CalendarToken[]>([]);
   const [settings, setSettings] = useState<CalendarSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'tokens' | 'settings'>('tokens');
-  const [isFullscreen, setIsFullscreen] = useState(false);
   
   // Token management state
   const [showCreateToken, setShowCreateToken] = useState(false);
@@ -68,11 +66,6 @@ export function CalendarTab({ onFullscreenToggle }: CalendarTabProps) {
   // CalDAV status state
   const [caldavStatus, setCaldavStatus] = useState<'checking' | 'online' | 'offline' | 'error'>('checking');
 
-  const handleFullscreenToggle = () => {
-    const newFullscreenState = !isFullscreen;
-    setIsFullscreen(newFullscreenState);
-    onFullscreenToggle(newFullscreenState);
-  };
 
   // Fetch calendar tokens
   const fetchTokens = async () => {
@@ -248,6 +241,8 @@ export function CalendarTab({ onFullscreenToggle }: CalendarTabProps) {
 
   const generateCalDAVUrl = (token: string | null) => {
     if (!token) return '';
+    // For Vercel deployment, use the actual domain or the Next.js API route
+    // The Next.js API route will proxy to the Supabase Edge Function
     const baseUrl = window.location.origin;
     return `${baseUrl}/api/caldav-server`;
   };
@@ -256,6 +251,7 @@ export function CalendarTab({ onFullscreenToggle }: CalendarTabProps) {
   const testCalDAVConnection = async () => {
     setCaldavStatus('checking');
     try {
+      // Test via the Next.js API route root path
       const response = await fetch('/api/caldav-server', {
         method: 'OPTIONS',
         headers: {
@@ -275,35 +271,6 @@ export function CalendarTab({ onFullscreenToggle }: CalendarTabProps) {
     }
   };
 
-  // Get status icon and text
-  const getStatusDisplay = () => {
-    switch (caldavStatus) {
-      case 'checking':
-        return {
-          icon: <RefreshCw className="w-4 h-4 animate-spin" />,
-          text: 'Prüfe Verbindung...',
-          color: 'text-blue-400'
-        };
-      case 'online':
-        return {
-          icon: <CheckCircle className="w-4 h-4" />,
-          text: 'CalDAV Server Online',
-          color: 'text-green-400'
-        };
-      case 'offline':
-        return {
-          icon: <XCircle className="w-4 h-4" />,
-          text: 'CalDAV Server Offline',
-          color: 'text-red-400'
-        };
-      case 'error':
-        return {
-          icon: <AlertCircle className="w-4 h-4" />,
-          text: 'Verbindungsfehler',
-          color: 'text-yellow-400'
-        };
-    }
-  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -344,15 +311,14 @@ export function CalendarTab({ onFullscreenToggle }: CalendarTabProps) {
       {/* Header */}
       <TabHeader
         title="Kalender-Integration"
-        subtitle="CalDAV & iCal-Feeds für Apple Calendar, Google Calendar, Outlook und andere Anwendungen"
+        subtitle="CalDAV & iCal-Feeds"
       >
         {/* CalDAV Status Indicator */}
-        <div className="flex items-center gap-2 px-3 py-2 bg-black/30 border border-white/20 rounded">
-          {getStatusDisplay().icon}
-          <span className={`text-sm uppercase tracking-[0.05em] ${getStatusDisplay().color}`}>
-            {getStatusDisplay().text}
-          </span>
-        </div>
+        <StatusBadge 
+          status={caldavStatus} 
+          size="sm" 
+          className="uppercase tracking-[0.05em]"
+        />
 
         <Button 
           variant="primaryOutline"
@@ -382,25 +348,6 @@ export function CalendarTab({ onFullscreenToggle }: CalendarTabProps) {
           className="sm:hidden"
         />
 
-        <Button 
-          variant="primaryOutline"
-          size="dashboard"
-          icon={isFullscreen ? <Minimize2 /> : <Maximize2 />}
-          onClick={handleFullscreenToggle}
-          className="hidden sm:flex"
-        >
-          {isFullscreen ? 'Verkleinern' : 'Vollbild'}
-        </Button>
-
-        <Button 
-          variant="primaryOutline"
-          size="icon"
-          iconOnly
-          icon={isFullscreen ? <Minimize2 /> : <Maximize2 />}
-          onClick={handleFullscreenToggle}
-          title={isFullscreen ? 'Verkleinern' : 'Vollbild'}
-          className="sm:hidden"
-        />
       </TabHeader>
 
       {/* Tab Navigation */}

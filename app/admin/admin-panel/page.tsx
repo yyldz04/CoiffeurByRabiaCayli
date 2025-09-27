@@ -1,25 +1,19 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { AppointmentsTab } from "./AppointmentsTab";
-import { ServicesTab } from "./ServicesTab";
-import { CategoriesTab } from "./CategoriesTab";
-import { SettingsTab } from "./SettingsTab";
-import { UIShowcaseTab } from "./UIShowcaseTab";
-import { Calendar } from "./Calendar";
-import { CalendarTab } from "./CalendarTab";
-import { SegmentPicker } from "./SegmentPicker";
-import { LogOut } from "lucide-react";
+import { ServicesTab } from "../../components/ServicesTab";
+import { CategoriesTab } from "../../components/CategoriesTab";
+import { SettingsTab } from "../../components/SettingsTab";
+import { UIShowcaseTab } from "../../components/UIShowcaseTab";
+import { CalendarTab } from "../../components/CalendarTab";
+import { SegmentPicker } from "../../components/SegmentPicker";
+import { LogOut, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-interface AdminDashboardProps {
-  onLogout: () => void;
-}
-
-export function AdminDashboard({ onLogout }: AdminDashboardProps) {
+export default function AdminPanelPage() {
   const router = useRouter();
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [activeTab, setActiveTab] = useState('TERMINE');
+  const [activeTab, setActiveTab] = useState('SERVICES');
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Update current time every minute
@@ -33,22 +27,20 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
 
   const handleLogout = () => {
     localStorage.removeItem("cbrc_admin_logged_in");
-    onLogout();
+    router.push('/admin');
+  };
+
+  const handleBackToDashboard = () => {
+    router.push('/admin');
   };
 
   // Memoized callback for SegmentPicker to prevent infinite re-renders
   const handleTabChange = useCallback((tab: string) => {
-    if (tab === 'EINSTELLUNGEN') {
-      // Navigate to Admin Panel
-      router.push('/admin/admin-panel');
-    } else {
-      setActiveTab(tab);
-    }
-  }, [router]);
+    setActiveTab(tab);
+  }, []);
 
-  // Memoized options and primary options to prevent infinite re-renders
-  const dashboardOptions = useMemo(() => ['TERMINE', 'KALENDER', 'EINSTELLUNGEN'], []);
-  const primaryOptions = useMemo(() => ['TERMINE', 'KALENDER'], []);
+  // Admin panel options - Services, Categories, Calendar Integration, Settings, UI Components
+  const adminOptions = useMemo(() => ['SERVICES', 'KATEGORIEN', 'KALENDER-INTEGRATION', 'EINSTELLUNGEN', 'UI COMPONENTS'], []);
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -57,7 +49,7 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
         <div className="border-b border-white/20 py-6 transition-all duration-300 responsive-padding">
           <div className="max-w-6xl mx-auto flex justify-between items-center">
             <div>
-              <h1 className="text-2xl tracking-[0.15em] uppercase">Dashboard</h1>
+              <h1 className="text-2xl tracking-[0.15em] uppercase">Admin Panel</h1>
               <p className="text-white/60 uppercase tracking-[0.05em]">
                 COIFFEUR BY RABIA CAYLI 
               </p>
@@ -87,6 +79,20 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
                 </p>
               </div>
               <button
+                onClick={handleBackToDashboard}
+                className="bg-transparent border border-white/20 px-8 py-3 tracking-[0.05em] hover:bg-white hover:text-black transition-colors uppercase hidden sm:block"
+              >
+                <ArrowLeft className="w-4 h-4 inline mr-2" />
+                Dashboard
+              </button>
+              <button
+                onClick={handleBackToDashboard}
+                className="bg-transparent border border-white/20 p-3 hover:bg-white hover:text-black transition-colors sm:hidden"
+                title="Zurück zum Dashboard"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+              <button
                 onClick={handleLogout}
                 className="bg-transparent border border-white/20 px-8 py-3 tracking-[0.05em] hover:bg-white hover:text-black transition-colors uppercase hidden sm:block"
               >
@@ -104,25 +110,26 @@ export function AdminDashboard({ onLogout }: AdminDashboardProps) {
         </div>
       )}
 
-      {/* Dashboard Content */}
+      {/* Admin Panel Content */}
       <div className="max-w-6xl mx-auto py-6 transition-all duration-300 responsive-padding">
         {/* Tab Navigation using SegmentPicker - Only show when not in fullscreen */}
         {!isFullscreen && (
           <div className="mb-8">
             <SegmentPicker
-              options={dashboardOptions}
+              options={adminOptions}
               selectedOption={activeTab}
               onOptionChange={handleTabChange}
-              variant="dashboard"
-              primaryOptions={primaryOptions}
+              variant="admin"
             />
           </div>
         )}
 
         {/* Tab Content */}
-        {activeTab === 'TERMINE' && <AppointmentsTab currentTime={currentTime} onFullscreenToggle={setIsFullscreen} />}
-        {activeTab === 'KALENDER' && <Calendar onFullscreenToggle={setIsFullscreen} />}
+        {activeTab === 'SERVICES' && <ServicesTab />}
+        {activeTab === 'KATEGORIEN' && <CategoriesTab />}
+        {activeTab === 'KALENDER-INTEGRATION' && <CalendarTab />}
         {activeTab === 'EINSTELLUNGEN' && <SettingsTab />}
+        {activeTab === 'UI COMPONENTS' && <UIShowcaseTab />}
       </div>
     </div>
   );

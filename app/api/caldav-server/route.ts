@@ -1,6 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Proxy CalDAV requests to the Supabase Edge Function
+// Handle CalDAV requests at the root level
+export async function OPTIONS(request: NextRequest) {
+  // Handle CORS preflight requests directly
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, HEAD, PATCH, OPTIONS, PROPFIND, PROPPATCH, MKCALENDAR, REPORT',
+      'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, depth, x-http-method-override',
+      'Access-Control-Max-Age': '86400',
+    },
+  });
+}
+
 export async function GET(request: NextRequest) {
   return proxyToCalDAVFunction(request);
 }
@@ -17,26 +30,12 @@ export async function DELETE(request: NextRequest) {
   return proxyToCalDAVFunction(request);
 }
 
-// Handle all CalDAV methods through the main handler
 export async function HEAD(request: NextRequest) {
   return proxyToCalDAVFunction(request);
 }
 
 export async function PATCH(request: NextRequest) {
   return proxyToCalDAVFunction(request);
-}
-
-export async function OPTIONS(request: NextRequest) {
-  // Handle CORS preflight requests directly
-  return new NextResponse(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, HEAD, PATCH, OPTIONS, PROPFIND, PROPPATCH, MKCALENDAR, REPORT',
-      'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, depth, x-http-method-override',
-      'Access-Control-Max-Age': '86400',
-    },
-  });
 }
 
 async function proxyToCalDAVFunction(request: NextRequest) {
@@ -51,12 +50,8 @@ async function proxyToCalDAVFunction(request: NextRequest) {
       );
     }
 
-    // Get the path from the request
-    const url = new URL(request.url);
-    const path = url.pathname.replace('/api/caldav-server', '');
-    
-    // Build the edge function URL
-    const edgeFunctionUrl = `${supabaseUrl}/functions/v1/caldav-server${path}${url.search}`;
+    // Build the edge function URL for root requests
+    const edgeFunctionUrl = `${supabaseUrl}/functions/v1/caldav-server/`;
     
     // Get the original method from headers (for custom CalDAV methods)
     const originalMethod = request.headers.get('X-HTTP-Method-Override') || request.method;
@@ -105,7 +100,7 @@ async function proxyToCalDAVFunction(request: NextRequest) {
     const responseHeaders: Record<string, string> = {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, depth, x-http-method-override',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, HEAD, PATCH, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, HEAD, PATCH, OPTIONS, PROPFIND, PROPPATCH, MKCALENDAR, REPORT',
     };
     
     // Forward relevant response headers

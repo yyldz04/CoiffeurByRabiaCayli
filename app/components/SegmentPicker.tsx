@@ -27,7 +27,7 @@ interface SegmentPickerProps {
   selectedOption: string;
   onOptionChange: (option: string) => void;
   className?: string;
-  variant?: 'admin' | 'calendar' | 'gender' | 'hair-length';
+  variant?: 'admin' | 'dashboard' | 'calendar' | 'gender' | 'hair-length';
   primaryOptions?: string[];
 }
 
@@ -46,10 +46,16 @@ export const SegmentPicker = memo(function SegmentPicker({
       admin: {
         'TERMINE': Calendar,
         'KALENDER': CalendarIcon,
+        'KALENDER-INTEGRATION': CalendarIcon,
         'SERVICES': Scissors,
         'KATEGORIEN': Tag,
         'EINSTELLUNGEN': Settings,
         'UI COMPONENTS': Palette
+      },
+      dashboard: {
+        'TERMINE': Calendar,
+        'KALENDER': CalendarIcon,
+        'EINSTELLUNGEN': Settings
       },
       calendar: {
         'Tag': CalendarDays,

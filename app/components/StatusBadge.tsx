@@ -15,6 +15,10 @@ export function StatusBadge({ status, size = "xs", className }: StatusBadgeProps
       case 'pending': return 'warning';
       case 'cancelled': return 'cancel';
       case 'completed': return 'info';
+      case 'online': return 'success';
+      case 'offline': return 'cancel';
+      case 'error': return 'warning';
+      case 'checking': return 'secondary';
       default: return 'secondary';
     }
   };
@@ -25,13 +29,17 @@ export function StatusBadge({ status, size = "xs", className }: StatusBadgeProps
       case 'pending': return 'Ausstehend';
       case 'cancelled': return 'Storniert';
       case 'completed': return 'Abgeschlossen';
+      case 'online': return 'CalDAV Online';
+      case 'offline': return 'CalDAV Offline';
+      case 'error': return 'Verbindungsfehler';
+      case 'checking': return 'Prüfe Verbindung...';
       default: return status;
     }
   };
 
   return (
     <Button
-      variant={getStatusVariant(status) as "default" | "destructive" | "outline" | "secondary" | "ghost" | "link"}
+      variant={getStatusVariant(status) as any}
       size={size}
       className={`pointer-events-none ${className || ''}`}
       disabled
