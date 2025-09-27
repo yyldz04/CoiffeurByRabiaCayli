@@ -530,7 +530,7 @@ export function CalendarTab({ onFullscreenToggle }: CalendarTabProps) {
                 <ul className="list-disc list-inside space-y-1 ml-4">
                   <li>Stellen Sie sicher, dass der Benutzername <code className="bg-black/30 px-1 rounded">calendar</code> ist</li>
                   <li>Das Passwort muss der vollständige Token sein (ohne Leerzeichen)</li>
-                  <li>Bei Apple Calendar: Wählen Sie "Anderer CalDAV-Account"</li>
+                  <li>Bei Apple Calendar: Wählen Sie &quot;Anderer CalDAV-Account&quot;</li>
                   <li>Bei Thunderbird: Installieren Sie das Lightning-Addon</li>
                 </ul>
               </div>
