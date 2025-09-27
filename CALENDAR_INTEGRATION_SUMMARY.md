@@ -14,7 +14,6 @@ Your calendar integration system is now **100% complete** and ready for producti
 - **`/api/calendar/feed.ics`** - iCal feed generation (RFC 5545 compliant)
 - **`/api/calendar/tokens`** - Token management (CRUD operations)
 - **`/api/calendar/settings`** - Settings management
-- **`/api/caldav/[...path]`** - CalDAV support for two-way sync
 
 ### 🎛️ Admin Interface
 - **CalendarTab component** integrated into AdminDashboard

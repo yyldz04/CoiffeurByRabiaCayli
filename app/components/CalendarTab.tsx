@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
-import { RefreshCw, Plus, Trash2, Settings, Copy, ExternalLink, Calendar as CalendarIcon } from "lucide-react";
+import { RefreshCw, Plus, Trash2, Settings, Copy, Calendar as CalendarIcon, Maximize2, Minimize2 } from "lucide-react";
 import { TabHeader } from "./TabHeader";
-import { Dialog } from "./ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 
 // Types
 interface CalendarToken {
@@ -237,7 +237,8 @@ export function CalendarTab({ onFullscreenToggle }: CalendarTabProps) {
   };
 
   // Generate calendar URL
-  const generateCalendarUrl = (token: string) => {
+  const generateCalendarUrl = (token: string | null) => {
+    if (!token) return '';
     const baseUrl = window.location.origin;
     return `${baseUrl}/api/calendar/feed.ics?token=${token}`;
   };
@@ -641,12 +642,11 @@ export function CalendarTab({ onFullscreenToggle }: CalendarTabProps) {
       )}
 
       {/* Create Token Dialog */}
-      {showCreateToken && (
-        <Dialog
-          isOpen={showCreateToken}
-          onClose={() => setShowCreateToken(false)}
-          title="Neuen Token erstellen"
-        >
+      <Dialog open={showCreateToken} onOpenChange={setShowCreateToken}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Neuen Token erstellen</DialogTitle>
+          </DialogHeader>
           <div className="space-y-4">
             <div>
               <label className="block text-white/60 uppercase tracking-[0.05em] text-sm mb-2">
@@ -759,16 +759,15 @@ export function CalendarTab({ onFullscreenToggle }: CalendarTabProps) {
               </Button>
             </div>
           </div>
-        </Dialog>
-      )}
+        </DialogContent>
+      </Dialog>
 
       {/* Token Created Dialog */}
-      {showTokenDialog && createdToken && (
-        <Dialog
-          isOpen={showTokenDialog}
-          onClose={() => setShowTokenDialog(false)}
-          title="Token erstellt"
-        >
+      <Dialog open={showTokenDialog} onOpenChange={setShowTokenDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Token erstellt</DialogTitle>
+          </DialogHeader>
           <div className="space-y-4">
             <p className="text-white/80">
               Der Token wurde erfolgreich erstellt. Kopieren Sie ihn jetzt, da er nicht erneut angezeigt wird.
@@ -778,7 +777,7 @@ export function CalendarTab({ onFullscreenToggle }: CalendarTabProps) {
               <div className="flex items-center justify-between">
                 <code className="text-white/80 text-sm break-all">{createdToken}</code>
                 <Button
-                  onClick={() => copyToClipboard(createdToken)}
+                  onClick={() => createdToken && copyToClipboard(createdToken)}
                   variant="secondary"
                   size="sm"
                   icon={<Copy />}
@@ -797,7 +796,7 @@ export function CalendarTab({ onFullscreenToggle }: CalendarTabProps) {
                   {generateCalendarUrl(createdToken)}
                 </code>
                 <Button
-                  onClick={() => copyToClipboard(generateCalendarUrl(createdToken))}
+                  onClick={() => createdToken && copyToClipboard(generateCalendarUrl(createdToken))}
                   variant="secondary"
                   size="sm"
                   icon={<Copy />}
@@ -814,7 +813,7 @@ export function CalendarTab({ onFullscreenToggle }: CalendarTabProps) {
               <ol className="list-decimal list-inside space-y-1">
                 <li>Kopieren Sie die Kalender-URL</li>
                 <li>Öffnen Sie Ihre Kalender-App (Apple Calendar, Google Calendar, etc.)</li>
-                <li>Fügen Sie die URL als "Kalender abonnieren" hinzu</li>
+                <li>Fügen Sie die URL als &quot;Kalender abonnieren&quot; hinzu</li>
                 <li>Der Kalender wird automatisch aktualisiert</li>
               </ol>
             </div>
@@ -829,8 +828,8 @@ export function CalendarTab({ onFullscreenToggle }: CalendarTabProps) {
               </Button>
             </div>
           </div>
-        </Dialog>
-      )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

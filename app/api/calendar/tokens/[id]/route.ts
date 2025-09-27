@@ -2,15 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '../../../../utils/supabase/client';
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 // DELETE: Revoke/delete a calendar token
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     if (!id) {
       return NextResponse.json(
@@ -64,7 +64,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 // PUT: Update token status (activate/deactivate)
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const { is_active } = await request.json();
 
     if (!id) {

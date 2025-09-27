@@ -13,7 +13,7 @@ import {
   ChevronUp,
   ChevronRight
 } from 'lucide-react';
-import { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react';
+import { useState, useEffect, useMemo, useCallback, memo } from 'react';
 
 export interface SegmentOption {
   value: string;
