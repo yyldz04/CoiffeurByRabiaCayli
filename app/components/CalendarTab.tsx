@@ -236,11 +236,17 @@ export function CalendarTab({ onFullscreenToggle }: CalendarTabProps) {
     }
   };
 
-  // Generate calendar URL
+  // Generate calendar URLs
   const generateCalendarUrl = (token: string | null) => {
     if (!token) return '';
     const baseUrl = window.location.origin;
     return `${baseUrl}/api/calendar/feed.ics?token=${token}`;
+  };
+
+  const generateCalDAVUrl = (token: string | null) => {
+    if (!token) return '';
+    const baseUrl = window.location.origin;
+    return `${baseUrl}/api/caldav-server`;
   };
 
   useEffect(() => {
@@ -789,7 +795,7 @@ export function CalendarTab({ onFullscreenToggle }: CalendarTabProps) {
 
             <div className="bg-blue-500/10 border border-blue-500/30 p-4">
               <h4 className="text-blue-400 uppercase tracking-[0.05em] text-sm mb-2">
-                Kalender-URL:
+                iCal Feed URL:
               </h4>
               <div className="flex items-center justify-between">
                 <code className="text-blue-300 text-sm break-all">
@@ -806,16 +812,50 @@ export function CalendarTab({ onFullscreenToggle }: CalendarTabProps) {
               </div>
             </div>
 
+            <div className="bg-green-500/10 border border-green-500/30 p-4">
+              <h4 className="text-green-400 uppercase tracking-[0.05em] text-sm mb-2">
+                CalDAV Server URL:
+              </h4>
+              <div className="flex items-center justify-between">
+                <code className="text-green-300 text-sm break-all">
+                  {generateCalDAVUrl(createdToken)}
+                </code>
+                <Button
+                  onClick={() => createdToken && copyToClipboard(generateCalDAVUrl(createdToken))}
+                  variant="secondary"
+                  size="sm"
+                  icon={<Copy />}
+                >
+                  Kopieren
+                </Button>
+              </div>
+            </div>
+
             <div className="text-sm text-white/60">
               <p className="mb-2">
-                <strong>So verwenden Sie den Token:</strong>
+                <strong>Verfügbare Integrationen:</strong>
               </p>
-              <ol className="list-decimal list-inside space-y-1">
-                <li>Kopieren Sie die Kalender-URL</li>
-                <li>Öffnen Sie Ihre Kalender-App (Apple Calendar, Google Calendar, etc.)</li>
-                <li>Fügen Sie die URL als &quot;Kalender abonnieren&quot; hinzu</li>
-                <li>Der Kalender wird automatisch aktualisiert</li>
-              </ol>
+              <div className="space-y-3">
+                <div>
+                  <p className="font-semibold text-blue-400">📅 iCal Feed (Read-Only):</p>
+                  <ol className="list-decimal list-inside space-y-1 ml-4">
+                    <li>Kopieren Sie die iCal Feed URL</li>
+                    <li>Öffnen Sie Ihre Kalender-App</li>
+                    <li>Fügen Sie als &quot;Kalender abonnieren&quot; hinzu</li>
+                    <li>Nur zum Anzeigen - keine Buchungen möglich</li>
+                  </ol>
+                </div>
+                <div>
+                  <p className="font-semibold text-green-400">🔄 CalDAV (Read/Write):</p>
+                  <ol className="list-decimal list-inside space-y-1 ml-4">
+                    <li>Kopieren Sie die CalDAV Server URL</li>
+                    <li>Öffnen Sie Ihre Kalender-App</li>
+                    <li>Fügen Sie als &quot;CalDAV Account&quot; hinzu</li>
+                    <li>Benutzername: calendar | Passwort: [Token]</li>
+                    <li>Bidirektionale Synchronisation möglich</li>
+                  </ol>
+                </div>
+              </div>
             </div>
 
             <div className="flex justify-end pt-4">

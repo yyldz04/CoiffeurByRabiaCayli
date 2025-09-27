@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '../../../utils/supabase/client';
 
 // GET: List all calendar tokens
-export async function GET(_request: NextRequest) {
+export async function GET() {
   try {
     const { data, error } = await supabaseAdmin
       .from('calendar_tokens')
