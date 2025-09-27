@@ -4,7 +4,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, depth',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PROPFIND, PROPPATCH, MKCALENDAR, REPORT'
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, HEAD, PATCH, OPTIONS, PROPFIND, PROPPATCH, MKCALENDAR, REPORT'
 }
 
 // Types for calendar data
