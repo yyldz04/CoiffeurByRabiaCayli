@@ -109,9 +109,12 @@ DECLARE
   v_token TEXT;
   v_token_id UUID;
   v_expires_at TIMESTAMPTZ;
+  v_random_bytes BYTEA;
 BEGIN
-  -- Generate a secure random token (32 characters)
-  v_token := encode(gen_random_bytes(24), 'base64url');
+  -- Generate a secure random token using base64 encoding
+  v_random_bytes := gen_random_bytes(32);
+  v_token := replace(replace(encode(v_random_bytes, 'base64'), '+', '-'), '/', '_');
+  v_token := rtrim(v_token, '='); -- Remove padding for URL-safe format
   
   -- Calculate expiration if provided
   IF p_expires_days IS NOT NULL THEN
